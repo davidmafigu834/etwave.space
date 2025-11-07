@@ -1,0 +1,467 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
+use App\Models\SystemUpdate;
+use App\Models\Setting;
+
+class UpdateController extends Controller
+{
+    /**
+     * Display the system updates page
+     */
+    public function index(): Response
+    {
+        $updates = SystemUpdate::with(['creator', 'applier'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($update) {
+                return [
+                    'id' => $update->id,
+                    'version' => $update->version,
+                    'name' => $update->name,
+                    'description' => $update->description,
+                    'changelog' => $update->changelog,
+                    'file_size' => $update->getFileSizeFormatted(),
+                    'status' => $update->status,
+                    'status_text' => $update->getStatusText(),
+                    'status_color' => $update->getStatusBadgeColor(),
+                    'applied_at' => $update->applied_at?->format('M d, Y H:i'),
+                    'created_at' => $update->created_at->format('M d, Y H:i'),
+                    'creator' => $update->creator?->name,
+                    'applier' => $update->applier?->name,
+                    'error_message' => $update->error_message,
+                    'can_apply' => $update->isPending(),
+                    'can_rollback' => $update->isApplied(),
+                    'is_current_user_creator' => $update->created_by === auth()->id()
+                ];
+            });
+
+        $currentVersion = $this->getCurrentVersion();
+
+        return Inertia::render('system-updates/index', [
+            'updates' => $updates,
+            'currentVersion' => $currentVersion,
+            'canManageUpdates' => auth()->user()->hasPermissionTo('manage-system-updates')
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new update
+     */
+    public function create(): Response
+    {
+        return Inertia::render('system-updates/create', [
+            'currentVersion' => $this->getCurrentVersion()
+        ]);
+    }
+
+    /**
+     * Store a newly uploaded update
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'version' => 'required|string|max:20|unique:system_updates,version',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'changelog' => 'nullable|string',
+            'update_file' => 'required|file|mimes:zip|max:102400', // 100MB max
+            'checksum' => 'nullable|string|size:64'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $file = $request->file('update_file');
+            $fileName = 'update_' . $request->version . '_' . time() . '.zip';
+            $filePath = $file->storeAs('updates', $fileName, 'local');
+
+            // Calculate checksum if not provided
+            $checksum = $request->checksum;
+            if (!$checksum) {
+                $checksum = hash('sha256', $file->getContent());
+            }
+
+            // Create system update record
+            $update = SystemUpdate::create([
+                'version' => $request->version,
+                'name' => $request->name,
+                'description' => $request->description,
+                'changelog' => $request->changelog,
+                'file_path' => $filePath,
+                'file_name' => $fileName,
+                'file_size' => $file->getSize(),
+                'checksum' => $checksum,
+                'status' => 'pending',
+                'created_by' => auth()->id()
+            ]);
+
+            DB::commit();
+
+            Log::info('System update uploaded', [
+                'update_id' => $update->id,
+                'version' => $update->version,
+                'user' => auth()->user()->email
+            ]);
+
+            return redirect()->route('system-updates.index')->with('success', 'Update uploaded successfully');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to upload system update', [
+                'error' => $e->getMessage(),
+                'user' => auth()->user()->email
+            ]);
+
+            return back()->withErrors(['error' => 'Failed to upload update: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Apply a system update
+     */
+    public function apply(SystemUpdate $update)
+    {
+        if (!$update->isPending()) {
+            return response()->json(['error' => 'Update is not in pending status'], 400);
+        }
+
+        try {
+            $result = $update->applyUpdate();
+
+            Log::info('System update applied', [
+                'update_id' => $update->id,
+                'version' => $update->version,
+                'result' => $result,
+                'user' => auth()->user()->email
+            ]);
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to apply system update', [
+                'update_id' => $update->id,
+                'error' => $e->getMessage(),
+                'user' => auth()->user()->email
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to apply update: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Rollback a system update
+     */
+    public function rollback(SystemUpdate $update)
+    {
+        if (!$update->isApplied()) {
+            return response()->json(['error' => 'Update is not in applied status'], 400);
+        }
+
+        try {
+            $result = $update->rollback();
+
+            Log::info('System update rolled back', [
+                'update_id' => $update->id,
+                'version' => $update->version,
+                'result' => $result,
+                'user' => auth()->user()->email
+            ]);
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to rollback system update', [
+                'update_id' => $update->id,
+                'error' => $e->getMessage(),
+                'user' => auth()->user()->email
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to rollback update: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a system update
+     */
+    public function destroy(SystemUpdate $update)
+    {
+        try {
+            // Delete associated files
+            $update->deleteFile();
+            $update->deleteExtractedFiles();
+
+            // Delete the update record
+            $update->delete();
+
+            Log::info('System update deleted', [
+                'update_id' => $update->id,
+                'version' => $update->version,
+                'user' => auth()->user()->email
+            ]);
+
+            return redirect()->route('system-updates.index')->with('success', 'Update deleted successfully');
+
+        } catch (\Exception $e) {
+            Log::error('Failed to delete system update', [
+                'update_id' => $update->id,
+                'error' => $e->getMessage(),
+                'user' => auth()->user()->email
+            ]);
+
+            return back()->withErrors(['error' => 'Failed to delete update: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Download update file
+     */
+    public function download(SystemUpdate $update)
+    {
+        if (!Storage::exists($update->file_path)) {
+            abort(404, 'Update file not found');
+        }
+
+        return Storage::download($update->file_path, $update->file_name);
+    }
+
+    /**
+     * Get update progress/status
+     */
+    public function status(SystemUpdate $update)
+    {
+        return response()->json([
+            'id' => $update->id,
+            'version' => $update->version,
+            'status' => $update->status,
+            'status_text' => $update->getStatusText(),
+            'applied_at' => $update->applied_at?->format('M d, Y H:i'),
+            'error_message' => $update->error_message,
+            'update_files' => $update->update_files,
+            'backup_path' => $update->backup_path
+        ]);
+    }
+
+    /**
+     * Validate update file
+     */
+    public function validateUpdate(Request $request)
+    {
+        $request->validate([
+            'update_file' => 'required|file|mimes:zip|max:102400'
+        ]);
+
+        try {
+            $file = $request->file('update_file');
+            $checksum = hash('sha256', $file->getContent());
+
+            // Basic validation - check if ZIP contains expected structure
+            $zip = new \ZipArchive();
+            $tempPath = $file->getPathname();
+
+            if ($zip->open($tempPath) === true) {
+                $updateJsonFound = false;
+                $migrationDirFound = false;
+
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $filename = $zip->getNameIndex($i);
+
+                    if (basename($filename) === 'update.json') {
+                        $updateJsonFound = true;
+                    }
+
+                    if (str_starts_with($filename, 'database/migrations/')) {
+                        $migrationDirFound = true;
+                    }
+                }
+
+                $zip->close();
+
+                return response()->json([
+                    'valid' => true,
+                    'checksum' => $checksum,
+                    'file_size' => $file->getSize(),
+                    'has_update_json' => $updateJsonFound,
+                    'has_migrations' => $migrationDirFound
+                ]);
+
+            } else {
+                return response()->json([
+                    'valid' => false,
+                    'error' => 'Invalid ZIP file'
+                ], 400);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'valid' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get current system version
+     */
+    private function getCurrentVersion(): string
+    {
+        $currentVersion = Setting::where('key', 'system_version')->first();
+
+        if ($currentVersion) {
+            return $currentVersion->value;
+        }
+
+        // Fallback: get latest applied update version
+        $latestUpdate = SystemUpdate::applied()->orderBy('applied_at', 'desc')->first();
+
+        if ($latestUpdate) {
+            // Update system version setting
+            Setting::updateOrCreate(
+                ['key' => 'system_version'],
+                ['value' => $latestUpdate->version]
+            );
+
+            return $latestUpdate->version;
+        }
+
+        // Default version
+        return '1.0.0';
+    }
+
+    /**
+     * Check for new updates (placeholder for future auto-update feature)
+     */
+    public function checkForUpdates()
+    {
+        // This could be implemented to check a remote server for updates
+        // For now, return empty response
+        return response()->json([
+            'available' => false,
+            'updates' => []
+        ]);
+    }
+
+    /**
+     * Get update logs
+     */
+    public function logs(SystemUpdate $update)
+    {
+        $logPath = storage_path('logs/laravel-' . now()->format('Y-m-d') . '.log');
+        $logs = [];
+
+        if (file_exists($logPath)) {
+            $lines = file($logPath);
+            $updateLogs = [];
+
+            foreach ($lines as $line) {
+                if (str_contains($line, 'update') &&
+                    (str_contains($line, $update->version) || str_contains($line, $update->id))) {
+                    $updateLogs[] = trim($line);
+                }
+            }
+
+            $logs = array_slice($updateLogs, -50); // Last 50 lines
+        }
+
+        return response()->json([
+            'logs' => $logs,
+            'update_id' => $update->id,
+            'version' => $update->version
+        ]);
+    }
+
+    /**
+     * Bulk operations on updates
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:delete_pending,delete_failed',
+            'update_ids' => 'required|array',
+            'update_ids.*' => 'exists:system_updates,id'
+        ]);
+
+        try {
+            $updates = SystemUpdate::whereIn('id', $request->update_ids)->get();
+
+            switch ($request->action) {
+                case 'delete_pending':
+                    $updates->where('status', 'pending')->each(function ($update) {
+                        $update->deleteFile();
+                        $update->delete();
+                    });
+                    break;
+
+                case 'delete_failed':
+                    $updates->where('status', 'failed')->each(function ($update) {
+                        $update->deleteFile();
+                        $update->delete();
+                    });
+                    break;
+            }
+
+            return response()->json(['success' => true, 'message' => 'Bulk action completed']);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bulk action failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get system information for updates
+     */
+    public function systemInfo()
+    {
+        $info = [
+            'current_version' => $this->getCurrentVersion(),
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'database' => [
+                'connection' => config('database.default'),
+                'version' => $this->getDatabaseVersion()
+            ],
+            'server' => [
+                'os' => php_uname(),
+                'web_server' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown'
+            ],
+            'storage' => [
+                'disk_free_space' => disk_free_space(base_path()),
+                'disk_total_space' => disk_total_space(base_path())
+            ],
+            'updates' => [
+                'total' => SystemUpdate::count(),
+                'pending' => SystemUpdate::pending()->count(),
+                'applied' => SystemUpdate::applied()->count(),
+                'failed' => SystemUpdate::failed()->count()
+            ]
+        ];
+
+        return response()->json($info);
+    }
+
+    private function getDatabaseVersion(): string
+    {
+        try {
+            $version = DB::select('SELECT VERSION() as version');
+            return $version[0]->version ?? 'Unknown';
+        } catch (\Exception $e) {
+            return 'Unknown';
+        }
+    }
+}

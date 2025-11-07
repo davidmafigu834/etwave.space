@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Test - EtWave</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 8px 0;
+            display: inline-block;
+        }
+        .success { background: #10b981; color: white; }
+        .error { background: #ef4444; color: white; }
+        .info { background: #3b82f6; color: white; }
+        button {
+            background: #f59e0b;
+            color: black;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 8px;
+            min-height: 44px;
+            min-width: 120px;
+        }
+        button:hover { background: #d97706; }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>📱 Mobile Test</h1>
+        <p>Testing mobile compatibility for EtWave</p>
+
+        <div class="status success" id="viewport-status">✅ Viewport: Testing...</div>
+        <div class="status info" id="device-status">📱 Device: Detecting...</div>
+        <div class="status info" id="orientation-status">📐 Orientation: Detecting...</div>
+        <div class="status info" id="touch-status">👆 Touch: Detecting...</div>
+
+        <button onclick="testAssets()">Test Assets</button>
+        <button onclick="testMainPage()">Go to Main Page</button>
+
+        <div id="results" style="margin-top: 20px; text-align: left;"></div>
+    </div>
+
+    <script>
+        // Mobile detection and testing
+        function updateStatus() {
+            const viewport = document.getElementById('viewport-status');
+            const device = document.getElementById('device-status');
+            const orientation = document.getElementById('orientation-status');
+            const touch = document.getElementById('touch-status');
+
+            // Viewport test
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            viewport.textContent = `✅ Viewport: ${width}x${height}`;
+            viewport.className = 'status success';
+
+            // Device detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            device.textContent = `📱 ${isMobile ? 'Mobile' : 'Desktop'} (${isIOS ? 'iOS' : isAndroid ? 'Android' : 'Other'})`;
+            device.className = 'status info';
+
+            // Orientation
+            const orientationType = screen.orientation ? screen.orientation.type : 'unknown';
+            orientation.textContent = `📐 Orientation: ${orientationType}`;
+            orientation.className = 'status info';
+
+            // Touch support
+            const touchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            touch.textContent = `👆 Touch: ${touchSupport ? 'Supported' : 'Not Supported'}`;
+            touch.className = touchSupport ? 'status success' : 'status error';
+        }
+
+        function testAssets() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>🔍 Testing Assets...</h3>';
+
+            const assets = [
+                '/build/manifest.json',
+                '/build/assets/app-*.css',
+                '/build/assets/app-*.js'
+            ];
+
+            assets.forEach(asset => {
+                fetch(asset)
+                    .then(response => {
+                        const status = response.ok ? '✅' : '❌';
+                        results.innerHTML += `<p>${status} ${asset}: ${response.status}</p>`;
+                    })
+                    .catch(error => {
+                        results.innerHTML += `<p>❌ ${asset}: ${error.message}</p>`;
+                    });
+            });
+        }
+
+        function testMainPage() {
+            window.location.href = '/';
+        }
+
+        // Run tests on load
+        window.addEventListener('load', updateStatus);
+        window.addEventListener('resize', updateStatus);
+        window.addEventListener('orientationchange', updateStatus);
+
+        // Log device info
+        console.log('Mobile Test Page Loaded');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Viewport:', window.innerWidth, 'x', window.innerHeight);
+        console.log('Device Pixel Ratio:', window.devicePixelRatio);
+        console.log('Touch Points:', navigator.maxTouchPoints);
+        console.log('Orientation:', screen.orientation ? screen.orientation.type : 'unknown');
+    </script>
+</body>
+</html>

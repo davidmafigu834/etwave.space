@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Backward-compat: rewrite ANY /main-file/... to root
+RewriteCond %{REQUEST_URI} ^/main-file/
+RewriteRule ^main-file/(.*)$ /$1 [L,R=302]
+
+# Disabled rewrite to public because DocumentRoot is project root
+#RewriteRule ^$ public/ [L]
+#RewriteRule (.*) public/$1 [L]
+

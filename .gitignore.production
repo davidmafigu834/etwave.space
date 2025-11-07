@@ -1,0 +1,66 @@
+# Laravel
+/vendor/
+/node_modules/
+/public/storage
+/public/hot
+/storage/*.key
+/storage/pail
+/bootstrap/cache/
+.phpunit.result.cache
+
+# Environment files
+.env
+.env.backup
+.env.local
+.env.production
+
+# IDE and editor files
+/.idea/
+/.vscode/
+/.fleet/
+/.nova/
+/.zed/
+.phpactor.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+/storage/logs/*
+/*.log
+npm-debug.log*
+yarn-error.log*
+
+# Testing
+.phpunit.cache
+tests/
+
+# Development files (keep these out of production)
+/build-ui/
+/check_*.php
+/clean_plan_tables.sql
+/complete_*.sql
+/extract-translations.php
+/sw.js
+/test*.php
+/update/
+/update.zip
+/vcardv5-refer/
+/public/screenshots
+
+# Composer
+composer.lock
+
+# Node.js
+package-lock.json
+.eslintcache
+
+# Temporary files
+*.tmp
+*.temp
