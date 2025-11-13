@@ -85,6 +85,20 @@ export const getCompanyMenuItems = (t: any, permissions: any[], auth: any,referr
             href: route('vcard-builder.index')
         });
     }
+    if ((hasPermission(permissions, 'edit-vcard-builder') || hasPermission(permissions, 'manage-vcard-builder')) && auth.user?.current_business) {
+        vCardChildren.push({
+            title: t('Services & Packages'),
+            href: route('vcard-builder.catalog.manage', auth.user?.current_business)
+        });
+        vCardChildren.push({
+            title: t('Featured Projects'),
+            href: route('vcard-builder.projects.manage', auth.user?.current_business)
+        });
+        vCardChildren.push({
+            title: t('Project Gallery'),
+            href: route('vcard-builder.gallery.manage', auth.user?.current_business)
+        });
+    }
     if (vCardChildren.length > 0) {
         items.push({
             title: t('vCard Builder'),
@@ -256,6 +270,57 @@ export const getCompanyMenuItems = (t: any, permissions: any[], auth: any,referr
             badge: (window as any).isDemo ? { label: 'Premium', variant: 'default' } : undefined,
             order: 160,
         });
+    }
+
+    // E-commerce
+    const ecommerceChildren = [];
+    
+    // Debug information
+    console.log('E-commerce menu debug:', {
+        currentUser: auth.user,
+        businesses: auth.user?.businesses,
+        currentBusinessId: auth.user?.current_business,
+        currentBusiness: auth.user?.businesses?.find((b: any) => b.id === auth.user?.current_business),
+        businessType: auth.user?.businesses?.find((b: any) => b.id === auth.user?.current_business)?.business_type,
+        shouldShow: auth.user?.current_business && auth.user?.businesses?.find((b: any) => b.id === auth.user?.current_business)?.business_type === 'ecommerce'
+    });
+    
+    // Check if we have the required data
+    if (auth.user?.current_business && auth.user?.businesses) {
+        const currentBusiness = auth.user.businesses.find((b: any) => b.id === auth.user.current_business);
+        console.log('Current business:', currentBusiness);
+        
+        if (currentBusiness?.business_type === 'ecommerce') {
+            ecommerceChildren.push({
+                title: t('Dashboard'),
+                href: route('ecommerce.dashboard', auth.user.current_business)
+            });
+            
+            ecommerceChildren.push({
+                title: t('Categories'),
+                href: route('ecommerce.categories.index', auth.user.current_business)
+            });
+            
+            ecommerceChildren.push({
+                title: t('Products'),
+                href: route('ecommerce.products.index', auth.user.current_business)
+            });
+            
+            ecommerceChildren.push({
+                title: t('Orders'),
+                href: route('ecommerce.orders.index', auth.user.current_business)
+            });
+            
+            if (ecommerceChildren.length > 0) {
+                items.push({
+                    title: t('E-commerce'),
+                    icon: ShoppingBag,
+                    children: ecommerceChildren,
+                    defaultOpen: true,
+                    order: 150,
+                });
+            }
+        }
     }
 
     // Package menus are now loaded automatically in menu.ts

@@ -7,7 +7,7 @@ import { photographyTemplate } from './photography';
 import { lawfirmTemplate } from './lawfirm';
 import { cafeTemplate } from './cafe';
 import { salonTemplate } from './salon';
-import { constructionTemplate } from './construction';
+import { constructionSalesTemplate } from './construction-sales';
 import { eventplannerTemplate } from './eventplanner';
 import { ecommerceTemplate } from './ecommerce';
 import { travelTemplate } from './travel';
@@ -52,6 +52,8 @@ export const BUSINESS_TYPE_ALIASES: Record<string, string> = {
   barber: 'salon',
   lawyer: 'lawfirm',
   attorney: 'lawfirm',
+  'construction-sales': 'construction',
+  'construction sales': 'construction',
   solar: 'solar-installation',
   photovoltaics: 'solar-installation',
   'solar-energy': 'solar-installation',
@@ -78,7 +80,7 @@ export const businessTemplates = {
   'lawfirm': lawfirmTemplate,
   'cafe': cafeTemplate,
   'salon': salonTemplate,
-  'construction': constructionTemplate,
+  'construction': constructionSalesTemplate,
   'eventplanner': eventplannerTemplate,
   'ecommerce': ecommerceTemplate,
   'travel': travelTemplate,
@@ -149,7 +151,7 @@ export const businessTypeOptions: BusinessTemplateOption[] = [
   { value: 'lawfirm', label: 'Law Firm', themeNumber: 7, icon: '⚖️' },
   { value: 'cafe', label: 'Cafe & Coffee Shop', themeNumber: 8, icon: '☕' },
   { value: 'salon', label: 'Salon & Spa', themeNumber: 9, icon: '💇♀️' },
-  { value: 'construction', label: 'Construction & Contractor', themeNumber: 10, icon: '🏗️' },
+  { value: 'construction', label: 'Construction Company', themeNumber: 10, icon: '🏗️' },
   { value: 'eventplanner', label: 'Event Planner', themeNumber: 11, icon: '🎉' },
   { value: 'ecommerce', label: 'E-commerce Store', themeNumber: 12, icon: '🛍️' },
   { value: 'travel', label: 'Travel Agency', themeNumber: 13, icon: '✈️' },

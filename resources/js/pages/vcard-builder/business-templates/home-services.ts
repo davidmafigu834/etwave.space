@@ -2,7 +2,7 @@ import { socialPlatformsConfig } from '../social-platforms-config';
 import languageData from '@/../../resources/lang/language.json';
 
 export const homeServicesTemplate = {
-  name: 'Home Services & Maintenance',
+  name: 'Professional Services',
   sections: [
     {
       key: 'header',

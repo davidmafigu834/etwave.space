@@ -162,6 +162,16 @@ class User extends BaseAuthenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Plan::class);
     }
+
+    public function onboardingProfile()
+    {
+        return $this->hasOne(OnboardingProfile::class);
+    }
+
+    public function completedOnboarding(): bool
+    {
+        return (bool) optional($this->onboardingProfile)->completed_at;
+    }
     
     /**
      * Check if user is on free plan

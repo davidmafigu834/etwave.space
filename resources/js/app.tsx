@@ -9,8 +9,10 @@ import { LayoutProvider } from './contexts/LayoutContext';
 import { SidebarProvider } from './contexts/SidebarContext';
 import { BrandProvider } from './contexts/BrandContext';
 import { ModalStackProvider } from './contexts/ModalStackContext';
+import { AnnouncementProvider } from './contexts/AnnouncementContext';
 import { initializeTheme } from './hooks/use-appearance';
 import { CustomToast } from './components/custom-toast';
+import AnnouncementWidget from './components/announcements/AnnouncementWidget';
 import { initializeGlobalSettings } from './utils/globalSettings';
 import { initPerformanceMonitoring, lazyLoadImages } from './utils/performance';
 import './i18n'; // Import i18n configuration
@@ -127,12 +129,15 @@ createInertiaApp({
                 <ModalStackProvider>
                     <LayoutProvider>
                         <SidebarProvider>
-                            <BrandProvider globalSettings={currentGlobalSettings} user={user}>
-                                <Suspense fallback={<div className="flex h-screen w-full items-center justify-center">Loading...</div>}>
-                                    <App {...appProps} />
-                                </Suspense>
-                                <CustomToast />
-                            </BrandProvider>
+                            <AnnouncementProvider user={user}>
+                                <BrandProvider globalSettings={currentGlobalSettings} user={user}>
+                                    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center">Loading...</div>}>
+                                        <App {...appProps} />
+                                    </Suspense>
+                                    <CustomToast />
+                                    <AnnouncementWidget />
+                                </BrandProvider>
+                            </AnnouncementProvider>
                         </SidebarProvider>
                     </LayoutProvider>
                 </ModalStackProvider>
@@ -141,7 +146,7 @@ createInertiaApp({
         
         // Initial render
         root.render(renderApp(props));
-
+        
         registerOneSignalSubscription();
         
         // Update global page data on navigation and re-render with new settings

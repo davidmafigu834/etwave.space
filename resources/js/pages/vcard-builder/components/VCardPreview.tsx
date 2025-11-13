@@ -12,7 +12,7 @@ import PhotographyTemplate from './templates/PhotographyTemplate';
 import LawFirmTemplate from './templates/LawFirmTemplate';
 import CafeTemplate from './templates/CafeTemplate';
 import SalonTemplate from './templates/SalonTemplate';
-import ConstructionTemplate from './templates/ConstructionTemplate';
+import ConstructionTemplate from './templates/ConstructionSalesTemplate';
 import EventPlannerTemplate from './templates/EventPlannerTemplate';
 import EcommerceTemplate from './templates/EcommerceTemplate';
 import TravelTemplate from './templates/TravelTemplate';
@@ -88,7 +88,32 @@ const templateComponents: Record<string, React.ComponentType<any>> = {
   'borehole-drilling': BoreholeDrillingTemplate
 };
 
+// Add debug logging function
+const debugLog = (message: string, data?: any) => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[VCardPreview] ${message}`, data || '');
+  }
+};
+
 export default function VCardPreview({ businessType, data, template }: VCardPreviewProps) {
+  debugLog('Rendering with props', { businessType, data: { ...data, config_sections: '...' }, template: template ? 'Template loaded' : 'No template' });
+  
+  // Ensure we have a valid business type
+  const normalizedBusinessType = React.useMemo(() => {
+    // Handle any business type aliases or fallbacks
+    const type = (businessType || '').toLowerCase().trim();
+    return type in templateComponents ? type : 'freelancer';
+  }, [businessType]);
+  
+  // Debug log template selection
+  React.useEffect(() => {
+    debugLog('Template Selection', {
+      businessType,
+      normalizedBusinessType,
+      isValidType: normalizedBusinessType in templateComponents,
+      availableTemplates: Object.keys(templateComponents)
+    });
+  }, [businessType, normalizedBusinessType]);
   const resolveAssetUrl = (value: unknown): string => {
     if (!value || typeof value !== 'string') return '';
 
@@ -185,7 +210,10 @@ export default function VCardPreview({ businessType, data, template }: VCardPrev
   // Process URLs in config_sections and template defaults
   const processedConfigSections = processUrls(data.config_sections);
   const processedTemplateDefaults = React.useMemo(() => processUrls(template?.defaultData || {}), [template]);
-  const templateSectionKeys = React.useMemo(() => new Set((template?.sections || []).map((section: any) => section.key)), [template]);
+  const templateSectionKeys = React.useMemo<Set<string>>(
+    () => new Set<string>((template?.sections || []).map((section: any) => String(section.key))),
+    [template]
+  );
 
   const defaultKeys = React.useMemo(() => {
     if (!processedTemplateDefaults || typeof processedTemplateDefaults !== 'object') {
@@ -280,8 +308,35 @@ export default function VCardPreview({ businessType, data, template }: VCardPrev
     return result;
   }, [processedConfigSections, processedTemplateDefaults, templateSectionKeys, defaultKeys, mergeWithDefaults]);
   
+  const resolvedAllowedSections = React.useMemo(() => {
+    const configured = data.template_config?.allowedSections;
+    if (!configured || (Array.isArray(configured) && configured.length === 0)) {
+      return undefined;
+    }
+
+    const list = (Array.isArray(configured) ? configured : [configured]).filter(
+      (value): value is string => typeof value === 'string' && value.trim().length > 0
+    );
+
+    const union = new Set<string>(list);
+
+    // Always include template-defined sections, defaults, and current config keys
+    templateSectionKeys.forEach((key) => union.add(key));
+    if (processedTemplateDefaults && typeof processedTemplateDefaults === 'object') {
+      Object.keys(processedTemplateDefaults as Record<string, any>).forEach((key) => union.add(key));
+    }
+    if (mergedConfigSections && typeof mergedConfigSections === 'object') {
+      Object.keys(mergedConfigSections as Record<string, any>).forEach((key) => union.add(key));
+    }
+
+    // Ensure essential settings are never filtered out
+    ['colors', 'font', 'language', 'pwa', 'seo', 'pixels', '_allowed_sections'].forEach((key) => union.add(key));
+
+    return Array.from(union);
+  }, [data.template_config?.allowedSections, templateSectionKeys, processedTemplateDefaults, mergedConfigSections]);
+
   // Filter config_sections based on allowed sections
-  const allowedSections = data.template_config?.allowedSections;
+  const allowedSections = resolvedAllowedSections;
   const filteredConfigSections = React.useMemo(() => {
     const sourceSections = mergedConfigSections as Record<string, any>;
     if (!sourceSections) {
@@ -351,7 +406,7 @@ export default function VCardPreview({ businessType, data, template }: VCardPrev
     
     return {
       ...template,
-      sections: template.sections?.filter((section: any) => 
+      sections: template.sections?.filter((section: any) =>
         allowedSections.includes(section.key) || ['colors', 'font', 'language', 'pwa'].includes(section.key)
       ) || []
     };
@@ -364,43 +419,63 @@ export default function VCardPreview({ businessType, data, template }: VCardPrev
     template_config: {
       ...data.template_config,
       sections: mergedVisualSettings,
-      sectionSettings: data.template_config?.sectionSettings || {}
+      sectionSettings: data.template_config?.sectionSettings || {},
+      allowedSections: resolvedAllowedSections
     }
   };
 
   const appliedFont = mergedVisualSettings?.font || template?.defaultFont || 'Inter, sans-serif';
 
-  // Check if the business type exists in our template components
-  const isValidType = businessType in templateComponents;
-  const type = isValidType ? businessType : 'freelancer'; // Default to freelancer if invalid
-  
-  // Debug logging
-  console.log('VCardPreview Template Selection:', {
-    businessType,
-    type,
-    isValidType,
-    availableTemplates: Object.keys(templateComponents)
-  });
-  
   // Get the template component
-  const TemplateComponent = templateComponents[type] || FreelancerTemplate;
+  const TemplateComponent = React.useMemo(() => {
+    const component = templateComponents[normalizedBusinessType];
+    if (!component) {
+      debugLog(`Template not found for type: ${normalizedBusinessType}, falling back to freelancer`);
+      return FreelancerTemplate;
+    }
+    return component;
+  }, [normalizedBusinessType]);
+  
+  // Debug log template data
+  React.useEffect(() => {
+    if (data?.config_sections?.header) {
+      debugLog('Template Header Data', {
+        headerName: data.config_sections.header.name,
+        businessType: normalizedBusinessType
+      });
+    }
+  }, [data?.config_sections?.header, normalizedBusinessType]);
 
   if (typeof window !== 'undefined') {
     // eslint-disable-next-line no-console
     console.log('[VCardPreview] sample header', {
       businessType,
-      templateType: type,
+      templateType: normalizedBusinessType,
       headerName: enhancedData.config_sections?.header?.name,
       sourceHeader: data.config_sections?.header?.name,
       defaultHeader: processedTemplateDefaults && (processedTemplateDefaults as Record<string, any>)?.header?.name,
     });
   }
 
-  return (
-    <div className="w-full overflow-x-hidden" style={{ fontFamily: appliedFont }}>
-      <TemplateComponent data={enhancedData} template={filteredTemplate} />
-    </div>
-  );
+  try {
+    return (
+      <div className="w-full overflow-x-hidden" style={{ fontFamily: appliedFont }}>
+        <TemplateComponent 
+          data={enhancedData} 
+          template={filteredTemplate} 
+        />
+      </div>
+    );
+  } catch (error) {
+    console.error('Error rendering template:', error);
+    return (
+      <div className="p-4 bg-red-50 text-red-800 rounded-lg m-4">
+        <h3 className="font-bold">Template Rendering Error</h3>
+        <p className="text-sm mb-2">Failed to render the template. Please try again or contact support.</p>
+        <p className="text-xs opacity-75">Error: {error.message}</p>
+      </div>
+    );
+  }
   
 }
 

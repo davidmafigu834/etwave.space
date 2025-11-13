@@ -28,7 +28,10 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\StripePaymentController;
-use App\Http\Controllers\PayPalPaymentController;
+use App\Http\Controllers\EcommerceController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\BankPaymentController;
 use App\Http\Controllers\PaystackPaymentController;
 use App\Http\Controllers\FlutterwavePaymentController;
@@ -59,15 +62,35 @@ use App\Http\Controllers\AamarpayPaymentController;
 use App\Http\Controllers\MidtransPaymentController;
 use App\Http\Controllers\PaymentWallPaymentController;
 use App\Http\Controllers\SSPayPaymentController;
+use App\Http\Controllers\BusinessCatalogController;
+use App\Http\Controllers\BusinessCatalogManagerController;
+use App\Http\Controllers\BusinessProjectManagerController;
+use App\Http\Controllers\ProjectGalleryController;
 use App\Http\Controllers\VCardBuilderController;
+use App\Http\Controllers\VCardAIController;
 use App\Http\Controllers\PublicVCardController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\AddonController;
 use App\Http\Controllers\NotificationPreferenceController;
+use App\Http\Controllers\SuperAdmin\AnnouncementManagementController;
+use App\Http\Controllers\OnboardingProfileController;
+use App\Http\Controllers\SimplePaynowController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [LandingPageController::class, 'show'])->name('home');
+
+// Paynow Payment Demo Route
+Route::get('/paynow-demo', [SimplePaynowController::class, 'showPaymentDemo']);
+
+// Simple Paynow Payment Routes (web middleware)
+Route::middleware('web')->group(function () {
+    Route::post('/api/paynow/create-payment', [SimplePaynowController::class, 'createPayment'])->middleware(['auth']);
+    Route::get('/api/paynow/callback', [SimplePaynowController::class, 'handleCallback']);
+    Route::get('/api/paynow/verify-payment', [SimplePaynowController::class, 'verifyPayment']);
+    Route::get('/api/paynow/payment-status', [SimplePaynowController::class, 'getPaymentStatus'])->middleware(['auth']);
+    Route::get('/api/paynow/complete-payment', [SimplePaynowController::class, 'completePayment'])->middleware(['auth']);
+});
 
 // Custom installer route override
 Route::get('install/requirements', [\App\Http\Controllers\Installer\RequirementsController::class, 'requirements'])
@@ -218,7 +241,7 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
     Route::post('plans/cancel-request', [PlanController::class, 'cancelRequest'])->name('plans.cancel-request');
     Route::post('plans/trial', [PlanController::class, 'startTrial'])->name('plans.trial');
     Route::post('plans/subscribe', [PlanController::class, 'subscribe'])->name('plans.subscribe');
-    Route::post('plans/coupons/validate', [CouponController::class, 'validate'])->name('coupons.validate');
+    Route::post('plans/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
     
     // Payment routes - accessible without plan check
     Route::post('payments/stripe', [StripePaymentController::class, 'processPayment'])->name('stripe.payment');
@@ -316,6 +339,10 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
     Route::get('dashboard/redirect', [DashboardController::class, 'redirectToFirstAvailablePage'])->name('dashboard.redirect');
     
     // All other routes require plan access check
+    Route::get('onboarding/profile', [OnboardingProfileController::class, 'show'])->name('onboarding.profile.show');
+    Route::post('onboarding/profile', [OnboardingProfileController::class, 'store'])->name('onboarding.profile.store');
+    Route::put('onboarding/profile', [OnboardingProfileController::class, 'update'])->name('onboarding.profile.update');
+
     Route::middleware('plan.access')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
@@ -383,7 +410,7 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
         Route::post('plans/cancel-request', [PlanController::class, 'cancelRequest'])->name('plans.cancel-request');
         Route::post('plans/trial', [PlanController::class, 'startTrial'])->name('plans.trial');
         Route::post('plans/subscribe', [PlanController::class, 'subscribe'])->name('plans.subscribe');
-        Route::post('plans/coupons/validate', [CouponController::class, 'validate'])->name('coupons.validate');
+        Route::post('plans/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
 
         // Admin-only plan management routes
         Route::middleware('permission:manage-plans')->group(function () {
@@ -513,6 +540,10 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
             Route::post('campaigns/settings', [CampaignsController::class, 'settings'])->middleware('permission:manage-settings-campaigns')->name('campaigns.settings.update');
         });
 
+        Route::middleware('App\Http\Middleware\SuperAdminMiddleware')->group(function () {
+            Route::get('superadmin/announcements', [AnnouncementManagementController::class, 'index'])->name('superadmin.announcements.index');
+        });
+
         // Currencies routes
         Route::middleware('permission:manage-currencies')->group(function () {
             Route::get('currencies', [CurrencyController::class, 'index'])->middleware('permission:manage-currencies')->name('currencies.index');
@@ -570,11 +601,33 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
         // vCard Builder routes
         Route::get('vcard-builder', [VCardBuilderController::class, 'index'])->middleware('permission:manage-vcard-builder')->name('vcard-builder.index');
         Route::get('vcard-builder/create', [VCardBuilderController::class, 'create'])->middleware('permission:create-vcard-builder')->name('vcard-builder.create');
+        Route::post('vcard-builder/ai/generate', [VCardAIController::class, 'generate'])
+            ->middleware('permission:create-vcard-builder')
+            ->name('vcard-builder.ai.generate');
+        Route::post('vcard-builder/ai/chat', [VCardAIController::class, 'chat'])
+            ->middleware('permission:create-vcard-builder')
+            ->name('vcard-builder.ai.chat');
         Route::get('vcard-builder/{slug}/calendar', [VCardBuilderController::class, 'indexCalendar'])->middleware('permission:calendar-vcard-builder')->name('vcard-builder.calendar');
         Route::get('vcard-builder/{slug}/contacts', [VCardBuilderController::class, 'indexContacts'])->middleware('permission:contacts-vcard-builder')->name('vcard-builder.contacts');
         Route::get('vcard-builder/{slug}/analytics', [VCardBuilderController::class, 'indexAnalytics'])->middleware('permission:analytics-vcard-builder')->name('vcard-builder.analytics');
         Route::post('vcard-builder', [VCardBuilderController::class, 'store'])->middleware('permission:create-vcard-builder')->name('vcard-builder.store');
-        Route::get('vcard-builder/{business}/edit', [VCardBuilderController::class, 'edit'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.edit');
+        Route::get('vcard-builder/{business}/catalog/manage', [BusinessCatalogManagerController::class, 'index'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.manage');
+        Route::post('vcard-builder/{business}/catalog/services', [BusinessCatalogManagerController::class, 'storeService'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.services.store');
+        Route::put('vcard-builder/{business}/catalog/services/{service}', [BusinessCatalogManagerController::class, 'updateService'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.services.update');
+        Route::delete('vcard-builder/{business}/catalog/services/{service}', [BusinessCatalogManagerController::class, 'destroyService'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.services.destroy');
+        Route::post('vcard-builder/{business}/catalog/packages', [BusinessCatalogManagerController::class, 'storePackage'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.packages.store');
+        Route::put('vcard-builder/{business}/catalog/packages/{package}', [BusinessCatalogManagerController::class, 'updatePackage'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.packages.update');
+        Route::delete('vcard-builder/{business}/catalog/packages/{package}', [BusinessCatalogManagerController::class, 'destroyPackage'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.catalog.packages.destroy');
+        Route::get('vcard-builder/{business}/projects/manage', [BusinessProjectManagerController::class, 'index'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.projects.manage');
+        Route::post('vcard-builder/{business}/projects', [BusinessProjectManagerController::class, 'store'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.projects.store');
+        Route::put('vcard-builder/{business}/projects/{project}', [BusinessProjectManagerController::class, 'update'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.projects.update');
+        Route::delete('vcard-builder/{business}/projects/{project}', [BusinessProjectManagerController::class, 'destroy'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.projects.destroy');
+        Route::get('vcard-builder/{business}/gallery', [ProjectGalleryController::class, 'index'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.gallery.manage');
+        Route::post('vcard-builder/{business}/gallery/{gallery}/items', [ProjectGalleryController::class, 'storeItem'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.gallery.items.store');
+        Route::put('vcard-builder/{business}/gallery/{gallery}/items/{item}', [ProjectGalleryController::class, 'updateItem'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.gallery.items.update');
+        Route::delete('vcard-builder/{business}/gallery/{gallery}/items/{item}', [ProjectGalleryController::class, 'destroyItem'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.gallery.items.destroy');
+        Route::post('vcard-builder/{business}/gallery/{gallery}/reorder', [ProjectGalleryController::class, 'reorder'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.gallery.items.reorder');
+        Route::get('vcard-builder/{business}/catalog', [BusinessCatalogController::class, 'show'])->middleware('permission:view-vcard-builder')->name('vcard-builder.catalog');
         Route::get('vcard-builder/{business}/preview', [VCardBuilderController::class, 'preview'])->middleware('permission:view-vcard-builder')->name('vcard-builder.preview');
         Route::post('vcard-builder/{business}/duplicate', [VCardBuilderController::class, 'duplicate'])->middleware('permission:duplicate-vcard-builder')->name('vcard-builder.duplicate');
         Route::put('vcard-builder/{business}', [VCardBuilderController::class, 'update'])->middleware('permission:edit-vcard-builder')->name('vcard-builder.update');
@@ -609,6 +662,33 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
     // API routes for slug validation
     Route::post('vcard-builder/check-slug', [VCardBuilderController::class, 'checkSlug'])->name('vcard-builder.check-slug');
     Route::post('vcard-builder/generate-slug', [VCardBuilderController::class, 'generateSlug'])->name('vcard-builder.generate-slug');
+    
+    // Ecommerce routes
+    Route::prefix('vcard-builder/{business}/ecommerce')->group(function () {
+        // Dashboard
+        Route::get('/', [EcommerceController::class, 'dashboard'])->name('ecommerce.dashboard');
+        
+        // Categories
+        Route::get('/categories', [EcommerceController::class, 'categoriesIndex'])->name('ecommerce.categories.index');
+        Route::get('/categories/create', [EcommerceController::class, 'categoriesCreate'])->name('ecommerce.categories.create');
+        Route::post('/categories', [EcommerceController::class, 'categoriesStore'])->name('ecommerce.categories.store');
+        Route::get('/categories/{category}/edit', [EcommerceController::class, 'categoriesEdit'])->name('ecommerce.categories.edit');
+        Route::put('/categories/{category}', [EcommerceController::class, 'categoriesUpdate'])->name('ecommerce.categories.update');
+        Route::delete('/categories/{category}', [EcommerceController::class, 'categoriesDestroy'])->name('ecommerce.categories.destroy');
+        
+        // Products
+        Route::get('/products', [ProductController::class, 'index'])->name('ecommerce.products.index');
+        Route::get('/products/create', [ProductController::class, 'create'])->name('ecommerce.products.create');
+        Route::post('/products', [ProductController::class, 'store'])->name('ecommerce.products.store');
+        Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('ecommerce.products.edit');
+        Route::put('/products/{product}', [ProductController::class, 'update'])->name('ecommerce.products.update');
+        Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('ecommerce.products.destroy');
+        
+        // Orders
+        Route::get('/orders', [OrderController::class, 'index'])->name('ecommerce.orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('ecommerce.orders.show');
+        Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('ecommerce.orders.update-status');
+    });
      
     // Addon routes
     Route::middleware('permission:manage-addons')->group(function () {

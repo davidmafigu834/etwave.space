@@ -9,13 +9,11 @@ use App\Models\PlanOrder;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Paynow\Payments\Paynow;
 
 class PaynowPaymentController extends Controller
 {
-    protected string $initiateEndpoint = 'https://www.paynow.co.zw/interface/initiatetransaction';
-
     public function createPayment(Request $request)
     {
         $validated = $this->validatePaymentRequest($request);
@@ -36,7 +34,7 @@ class PaynowPaymentController extends Controller
             $reference = 'PN-' . Str::upper(Str::random(10));
             $user = $request->user();
 
-            $this->createPlanOrder([
+            $order = $this->createPlanOrder([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
                 'billing_cycle' => $validated['billing_cycle'],
@@ -46,57 +44,97 @@ class PaynowPaymentController extends Controller
                 'status' => 'pending',
             ]);
 
-            $payload = [
-                'id' => $paymentSettings['paynow_merchant_id'],
-                'reference' => $reference,
-                'amount' => number_format($pricing['final_price'], 2, '.', ''),
-                'additionalinfo' => $plan->name . ' - ' . ucfirst($validated['billing_cycle']),
-                'returnurl' => route('paynow.success'),
-                'resulturl' => route('paynow.callback'),
-            ];
+            $paynow = new Paynow(
+                $paymentSettings['paynow_merchant_id'],
+                $paymentSettings['paynow_integration_key'],
+                route('paynow.callback'),
+                route('paynow.success')
+            );
 
             if (!empty($user->email)) {
-                $payload['authemail'] = $user->email;
+                $paynow->setAuthEmail($user->email);
             }
 
-            if (!empty($user->phone)) {
-                $payload['authphone'] = $user->phone;
+            $authPhone = $user->phone ?? null;
+            if (!empty($authPhone)) {
+                $paynow->setAuthPhone($authPhone);
             }
 
-            $payload['hash'] = $this->createHash($payload, $paymentSettings['paynow_integration_key']);
+            $paynowMode = $paymentSettings['paynow_mode'] ?? 'test';
+            $testEmail = $paymentSettings['paynow_test_email'] ?? null;
 
-            $response = Http::asForm()->post($this->initiateEndpoint, $payload);
-
-            if (!$response->ok()) {
-                \Log::error('Paynow initiation HTTP error', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-
-                return response()->json([
-                    'error' => __('Failed to initiate Paynow transaction (HTTP :status)', ['status' => $response->status()]),
-                ], 500);
+            if ($paynowMode === 'test' && empty($testEmail)) {
+                $testEmail = 'ddstarbelieveit@gmail.com';
             }
 
-            parse_str($response->body(), $responseData);
+            $channel = $validated['paynow_channel'] ?? 'redirect';
+            $mobilePhone = $validated['mobile_phone'] ?? null;
+            $mobileMethod = $validated['mobile_method'] ?? null;
 
-            if (!isset($responseData['status']) || strtolower($responseData['status']) !== 'ok') {
+            if ($paynowMode === 'test' && !empty($testEmail)) {
+                $paynow->setAuthEmail($testEmail);
+                if (empty($mobilePhone)) {
+                    $mobilePhone = '0771111111';
+                }
+                $paynow->setAuthPhone($mobilePhone);
+            }
+
+            $paymentAuthEmail = $user->email ?? null;
+            if ($paynowMode === 'test' && !empty($testEmail)) {
+                $paymentAuthEmail = $testEmail;
+            }
+
+            $payment = $paynow->createPayment($reference, $paymentAuthEmail);
+            $payment->add($plan->name . ' - ' . ucfirst($validated['billing_cycle']), $pricing['final_price']);
+
+            if ($channel === 'mobile') {
+                if (!$mobilePhone || !$mobileMethod) {
+                    throw new \InvalidArgumentException('Mobile payment requires phone number and method.');
+                }
+                $response = $paynow->sendMobile($payment, $mobilePhone, $mobileMethod);
+            } else {
+                $response = $paynow->send($payment);
+            }
+
+            if (!$response->success()) {
+                $responseData = $response->data();
+                $errorMessage = $responseData['error'] ?? implode(', ', $response->errors()) ?? __('Paynow returned an error');
+                
                 \Log::warning('Paynow initiation returned non-ok status', [
-                    'response' => $responseData,
-                    'raw' => $response->body(),
+                    'messages' => $response->errors(),
+                    'data' => $responseData,
                 ]);
 
                 return response()->json([
-                    'error' => $responseData['error'] ?? __('Paynow returned an error'),
+                    'error' => $errorMessage,
                     'details' => $responseData,
                 ], 422);
             }
 
+            $redirectUrl = $response->redirectUrl();
+            $pollUrl = $response->pollUrl();
+            $instructions = method_exists($response, 'instructions') ? $response->instructions() : null;
+
+            if (!empty($pollUrl) && isset($order)) {
+                $this->appendOrderNote($order, sprintf('Paynow poll URL (%s): %s', $reference, $pollUrl));
+            }
+
+            if ($channel === 'mobile' && isset($order)) {
+                $this->appendOrderNote($order, sprintf('Paynow mobile express via %s to %s', strtoupper((string) $mobileMethod), $mobilePhone));
+                if (!empty($instructions)) {
+                    $instructionNote = is_array($instructions) ? implode(' | ', $instructions) : (string) $instructions;
+                    $this->appendOrderNote($order, 'Paynow instructions: ' . $instructionNote);
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'redirect_url' => $responseData['browserurl'] ?? null,
-                'poll_url' => $responseData['pollurl'] ?? null,
+                'mode' => $channel,
+                'redirect_url' => $channel === 'mobile' ? null : $redirectUrl,
+                'poll_url' => $pollUrl,
                 'reference' => $reference,
+                'instructions' => $channel === 'mobile' ? $instructions : null,
+                'test_mode' => $paynowMode === 'test',
             ]);
         } catch (\Exception $exception) {
             \Log::error('Paynow create payment error', [
@@ -181,6 +219,9 @@ class PaynowPaymentController extends Controller
             'plan_id' => 'required|exists:plans,id',
             'billing_cycle' => 'required|in:monthly,yearly',
             'coupon_code' => 'nullable|string',
+            'paynow_channel' => 'nullable|in:redirect,mobile',
+            'mobile_phone' => ['required_if:paynow_channel,mobile', 'string', 'max:20'],
+            'mobile_method' => 'required_if:paynow_channel,mobile|in:ecocash,onemoney',
         ];
 
         return $request->validate(array_merge($baseRules, $additionalRules));
@@ -248,5 +289,12 @@ class PaynowPaymentController extends Controller
             'status' => $data['status'] ?? 'pending',
             'ordered_at' => now(),
         ]);
+    }
+
+    protected function appendOrderNote(PlanOrder $order, string $message): void
+    {
+        $timestampedMessage = sprintf('[%s] %s', now()->toDateTimeString(), $message);
+        $notes = $order->notes ? $order->notes . PHP_EOL . $timestampedMessage : $timestampedMessage;
+        $order->update(['notes' => $notes]);
     }
 }

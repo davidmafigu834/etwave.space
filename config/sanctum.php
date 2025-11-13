@@ -2,6 +2,32 @@
 
 use Laravel\Sanctum\Sanctum;
 
+$defaultSanctumDomains = [
+    'localhost',
+    'localhost:3000',
+    '127.0.0.1',
+    '127.0.0.1:8000',
+    '::1',
+];
+
+$appUrl = env('APP_URL', 'http://localhost');
+$appHost = parse_url($appUrl, PHP_URL_HOST);
+$appPort = parse_url($appUrl, PHP_URL_PORT);
+
+if ($appHost) {
+    $defaultSanctumDomains[] = $appPort ? sprintf('%s:%s', $appHost, $appPort) : $appHost;
+}
+
+$currentAppUrl = Sanctum::currentApplicationUrlWithPort();
+$currentHost = $currentAppUrl ? parse_url($currentAppUrl, PHP_URL_HOST) : null;
+$currentPort = $currentAppUrl ? parse_url($currentAppUrl, PHP_URL_PORT) : null;
+
+if ($currentHost) {
+    $defaultSanctumDomains[] = $currentPort ? sprintf('%s:%s', $currentHost, $currentPort) : $currentHost;
+}
+
+$defaultSanctumDomains = array_values(array_unique(array_filter($defaultSanctumDomains)));
+
 return [
 
     /*
@@ -15,12 +41,7 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
-    ))),
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', implode(',', $defaultSanctumDomains))),
 
     /*
     |--------------------------------------------------------------------------

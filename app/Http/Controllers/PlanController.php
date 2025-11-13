@@ -222,7 +222,15 @@ class PlanController extends Controller
         $validated['enable_custsubdomain'] = $validated['enable_custsubdomain'] ?? 'off';
         $validated['pwa_business'] = $validated['pwa_business'] ?? 'off';
         $validated['enable_chatgpt'] = $validated['enable_chatgpt'] ?? 'off';
-        $validated['is_trial'] = $validated['is_trial'] ?? null;
+        $validated['is_trial'] = $validated['is_trial'] ?? 'off';
+        
+        // Reset trial days if trial is turned off
+        if ($validated['is_trial'] === 'off') {
+            $validated['trial_day'] = 0;
+        } else {
+            $validated['trial_day'] = $validated['trial_day'] ?? 0;
+        }
+        
         $validated['is_plan_enable'] = $validated['is_plan_enable'] ?? 'on';
         $validated['is_default'] = $validated['is_default'] ?? false;
         
@@ -322,7 +330,15 @@ class PlanController extends Controller
         $validated['enable_custsubdomain'] = $validated['enable_custsubdomain'] ?? 'off';
         $validated['pwa_business'] = $validated['pwa_business'] ?? 'off';
         $validated['enable_chatgpt'] = $validated['enable_chatgpt'] ?? 'off';
-        $validated['is_trial'] = $validated['is_trial'] ?? null;
+        $validated['is_trial'] = $validated['is_trial'] ?? 'off';
+        
+        // Reset trial days if trial is turned off
+        if ($validated['is_trial'] === 'off') {
+            $validated['trial_day'] = 0;
+        } else {
+            $validated['trial_day'] = $validated['trial_day'] ?? 0;
+        }
+        
         $validated['is_plan_enable'] = $validated['is_plan_enable'] ?? 'on';
         $validated['is_default'] = $validated['is_default'] ?? false;
         

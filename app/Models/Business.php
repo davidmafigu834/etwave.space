@@ -103,6 +103,46 @@ class Business extends Model
         return $this->hasMany(Campaign::class);
     }
     
+    public function services()
+    {
+        return $this->hasMany(BusinessService::class)->orderBy('order_index');
+    }
+
+    public function packages()
+    {
+        return $this->hasMany(BusinessPackage::class)->orderBy('order_index');
+    }
+
+    public function projects()
+    {
+        return $this->hasMany(BusinessProject::class)->orderBy('order_index');
+    }
+
+    public function projectGalleries()
+    {
+        return $this->hasMany(ProjectGallery::class)->orderBy('order_index');
+    }
+
+    public function projectGallery()
+    {
+        return $this->hasOne(ProjectGallery::class)->orderBy('order_index');
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(ProductCategory::class)->orderBy('order_index');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class)->orderBy('order_index');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class)->orderBy('created_at', 'desc');
+    }
+
     /**
      * Get active campaigns for the business.
      */

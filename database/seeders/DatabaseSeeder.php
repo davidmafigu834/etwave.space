@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             BusinessDirectorySettingSeeder::class,
             BusinessDirectoryCustomPageSeeder::class,
             LandingPageCustomPageSeeder::class,
+            EcommerceSeeder::class,
         ]);
     }
 }

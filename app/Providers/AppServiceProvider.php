@@ -45,6 +45,12 @@ class AppServiceProvider extends ServiceProvider
         \Inertia\Inertia::share('auth', function () {
             if (auth()->check()) {
                 $user = auth()->user();
+                // Load businesses with business_type for e-commerce menu
+                $user->load('businesses');
+                // Also load current business if set
+                if ($user->current_business) {
+                    $user->load('businesses');
+                }
                 return [
                     'user' => $user,
                     'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),

@@ -7,4 +7,5 @@ return [
     Shetabit\Visitor\Provider\VisitorServiceProvider::class,
     Spatie\MediaLibrary\MediaLibraryServiceProvider::class,
     App\Providers\PackageServiceProvider::class,
+    Lab404\Impersonate\ImpersonateServiceProvider::class,
 ];

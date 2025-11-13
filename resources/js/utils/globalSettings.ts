@@ -24,6 +24,7 @@ declare global {
                 currencyCode: string;
                 currencyName: string;
             };
+            paymentSettings?: Record<string, any>;
         };
     }
 }
@@ -54,6 +55,7 @@ export function initializeGlobalSettings(settings: Record<string, any>) {
         language: settings.defaultLanguage ?? 'en',
         emailVerification: settings.emailVerification === true || settings.emailVerification === 'true',
         currencySettings,
+        paymentSettings: settings.paymentSettings ?? {},
         formatCurrency: (amount: number | string, options = { showSymbol: true, showCode: false }) => {
             try {
                 // Parse the amount

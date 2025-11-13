@@ -1,0 +1,45 @@
+/* VCard Preview Container */
+.vcard-preview-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  transform-origin: top left;
+  background: #fff;
+}
+
+.vcard-preview-inner {
+  min-width: 375px; /* Minimum mobile width */
+  width: 100%;
+  min-height: 100%;
+  margin: 0 auto;
+  position: relative;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Ensure images and media scale properly */
+.vcard-preview-inner img,
+.vcard-preview-inner video,
+.vcard-preview-inner iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fix for iOS zooming */
+@supports (-webkit-touch-callout: none) {
+  .vcard-preview-container {
+    /* Prevent iOS zooming */
+    touch-action: pan-y;
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Ensure form elements are visible */
+.vcard-preview-inner input,
+.vcard-preview-inner select,
+.vcard-preview-inner textarea,
+.vcard-preview-inner button {
+  font-size: 16px !important; /* Prevent iOS zooming on focus */
+  max-width: 100%;
+}

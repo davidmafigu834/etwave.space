@@ -141,7 +141,7 @@ class CouponController extends BaseController
     /**
      * Validate coupon code
      */
-    public function validate(Request $request)
+    public function validateCoupon(Request $request)
     {
         $request->validate([
             'coupon_code' => 'required|string',

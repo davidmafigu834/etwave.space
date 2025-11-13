@@ -44,6 +44,7 @@ interface VCardSectionManagerProps {
   onReorderSections: (sections: SectionConfig[]) => void;
   allowedSections?: string[] | null;
   isSuperAdmin?: boolean;
+  catalogManagerUrl?: string;
 }
 
 export default function VCardSectionManager({
@@ -51,7 +52,8 @@ export default function VCardSectionManager({
   templateConfig,
   onUpdateSection,
   onToggleSection,
-  onReorderSections
+  onReorderSections,
+  catalogManagerUrl
 }: VCardSectionManagerProps) {
   const { t } = useTranslation();
   React.useEffect(() => {
@@ -701,21 +703,42 @@ export default function VCardSectionManager({
 
             {isExpanded && (
               <div className="p-2 space-y-2 border-t">
-                <div className="space-y-3">
-                  {config.fields.map((field: any) => (
-                    <div key={field.name} className={`space-y-1 ${field.type === 'repeater' ? 'col-span-full' : ''}`}>
-                      <div className="flex items-center">
-                        <Label htmlFor={field.name} className="text-sm font-medium">
-                          {field.label}
-                        </Label>
-                        {field.required && (
-                          <span className="text-xs text-red-500 ml-1">*</span>
-                        )}
+                {['service_highlights', 'packages'].includes(config.key) ? (
+                  <div className="rounded-md border border-dashed bg-muted/40 p-3 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">
+                      {config.key === 'service_highlights'
+                        ? t('Services are now managed in the Services & Packages catalog.')
+                        : t('Packages are now managed in the Services & Packages catalog.')}
+                    </p>
+                    <p className="mt-1">
+                      {t('Use the Services & Packages page to add, edit, or delete entries. Updates will sync here automatically.')}
+                    </p>
+                    {catalogManagerUrl && (
+                      <a
+                        href={catalogManagerUrl}
+                        className="mt-2 inline-flex items-center text-sm font-medium text-primary hover:underline"
+                      >
+                        {t('Open Services & Packages')}
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {config.fields.map((field: any) => (
+                      <div key={field.name} className={`space-y-1 ${field.type === 'repeater' ? 'col-span-full' : ''}`}>
+                        <div className="flex items-center">
+                          <Label htmlFor={field.name} className="text-sm font-medium">
+                            {field.label}
+                          </Label>
+                          {field.required && (
+                            <span className="text-xs text-red-500 ml-1">*</span>
+                          )}
+                        </div>
+                        {renderField(config.key, field)}
                       </div>
-                      {renderField(config.key, field)}
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

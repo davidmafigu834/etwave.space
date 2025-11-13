@@ -14,6 +14,13 @@ self.addEventListener('activate', function(event) {
   event.waitUntil(self.clients.claim());
 });
 
+// Handle messages from clients
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)

@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { LayoutGrid, BarChart3, Globe, Briefcase, Image, Nfc, BarChart, CreditCard, Percent, Globe2, DollarSign, Gift, Palette, Mail, Package, Settings, Shield, Users } from 'lucide-react';
+import { LayoutGrid, BarChart3, Globe, Briefcase, Image, Nfc, BarChart, CreditCard, Percent, Globe2, DollarSign, Gift, Palette, Mail, Package, Settings, Shield, Users, Bell } from 'lucide-react';
 import { hasPermission } from '@/utils/authorization';
 
 declare global {
@@ -47,6 +47,12 @@ export const getSuperAdminMenuItems = (t: any, permissions: any[] = []): NavItem
         href: route('companies.index'),
         icon: Briefcase,
         order: 40,
+    },
+    {
+        title: t('Announcements'),
+        href: route('superadmin.announcements.index'),
+        icon: Bell,
+        order: 45,
     },
     {
         title: t('Media Library'),

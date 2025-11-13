@@ -2,6 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getFilteredSectionOrder } from '@/utils/sectionHelpers';
+import { getBusinessTemplate } from '@/pages/vcard-builder/business-templates';
 import {
   SunMedium,
   Leaf,
@@ -13,7 +15,8 @@ import {
   Mail,
   Globe,
   MapPin,
-  Clock
+  Clock,
+  Video as VideoIcon
 } from 'lucide-react';
 
 interface SolarInstallationTemplateProps {
@@ -76,8 +79,13 @@ const StatCard = ({
 
 const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ data, template }) => {
   const { t } = useTranslation();
+  const templateDefaults = template?.defaultData || {};
+  const catalogSections = data.catalog_sections || {};
   const configSections = data?.config_sections || {};
   const templateConfig = data?.template_config || {};
+  const sections = React.useMemo(() => getBusinessTemplate('solar-installation')?.sections || [], []);
+  const previewData = React.useMemo(() => ({ ...data, template_config: data.template_config || {}, config_sections: configSections }), [data, configSections]);
+  const orderedSectionKeys = React.useMemo(() => getFilteredSectionOrder(previewData, sections), [previewData, sections]);
 
   const isSectionActive = (key: string) => {
     const sectionConfig = (configSections as Record<string, any>)[key];
@@ -211,17 +219,16 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
         : template?.defaultData?.about || {})
     : {};
 
-  const residential = isSectionActive('residential_services')
-    ? (configSections.residential_services && 'solutions' in (configSections.residential_services ?? {})
-        ? (Array.isArray(configSections.residential_services?.solutions) ? configSections.residential_services.solutions : [])
-        : template?.defaultData?.residential_services?.solutions || [])
-    : [];
+  const serviceHighlightsSection = (catalogSections.service_highlights ?? configSections.service_highlights) || {};
+  const packagesSection = (catalogSections.packages ?? configSections.packages) || {};
 
-  const commercial = isSectionActive('commercial_services')
-    ? (configSections.commercial_services && 'solutions' in (configSections.commercial_services ?? {})
-        ? (Array.isArray(configSections.commercial_services?.solutions) ? configSections.commercial_services.solutions : [])
-        : template?.defaultData?.commercial_services?.solutions || [])
-    : [];
+  const serviceHighlights = isSectionActive('service_highlights')
+    ? serviceHighlightsSection
+    : {};
+
+  const packages = isSectionActive('packages')
+    ? packagesSection
+    : {};
 
   const financing = isSectionActive('financing')
     ? (configSections.financing !== undefined
@@ -229,19 +236,14 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
         : template?.defaultData?.financing || {})
     : {};
 
-  const portfolio = isSectionActive('portfolio')
-    ? (configSections.portfolio && 'projects' in (configSections.portfolio ?? {})
-        ? (Array.isArray(configSections.portfolio?.projects) ? configSections.portfolio.projects : [])
-        : template?.defaultData?.portfolio?.projects || [])
-    : [];
+  const featuredProjectsSection = (catalogSections.featured_projects ?? configSections.featured_projects) || {};
+  const featuredProjects = isSectionActive('featured_projects')
+    ? featuredProjectsSection
+    : {};
 
   const galleryActive = isSectionActive('gallery');
-
-  const galleryImages = galleryActive
-    ? (configSections.gallery && 'images' in (configSections.gallery ?? {})
-        ? (Array.isArray(configSections.gallery?.images) ? configSections.gallery.images : [])
-        : template?.defaultData?.gallery?.images || [])
-    : [];
+  const gallerySection = (catalogSections.gallery ?? configSections.gallery) || {};
+  const galleryData = galleryActive ? gallerySection : {};
 
   const testimonials = isSectionActive('testimonials')
     ? (configSections.testimonials && 'reviews' in (configSections.testimonials ?? {})
@@ -255,10 +257,10 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
         : template?.defaultData?.faq?.items || [])
     : [];
 
-  const calculator = isSectionActive('calculator')
-    ? (configSections.calculator !== undefined
-        ? (configSections.calculator ?? {})
-        : template?.defaultData?.calculator || {})
+  const contactForm = isSectionActive('contact_form')
+    ? (configSections.contact_form !== undefined
+        ? (configSections.contact_form ?? {})
+        : template?.defaultData?.contact_form || {})
     : {};
 
   const appointments = isSectionActive('appointments')
@@ -464,87 +466,111 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
           </section>
         )}
 
-        {Array.isArray(residential) && residential.length > 0 && (
-          <section>
-            <div className="flex flex-col items-center text-center gap-2 mb-6">
-              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{t('Residential Solar Solutions')}</h2>
-              <Badge className="bg-[rgba(255,153,0,0.1)] text-[rgba(255,153,0,1)] flex items-center gap-1">
-                <Home className="w-4 h-4" />
-                {t('Homeowners')}
-              </Badge>
-            </div>
-            <div className="space-y-6">
-              {residential.map((solution: any, idx: number) => (
+        <section>
+          <div className="space-y-2 mb-6 text-center">
+            <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{serviceHighlights.heading || t('Our Solar Services')}</h2>
+            {serviceHighlights.subheading && (
+              <p className="text-sm" style={{ color: colors.text }}>{serviceHighlights.subheading}</p>
+            )}
+          </div>
+          {serviceHighlights && Array.isArray(serviceHighlights.services) && serviceHighlights.services.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {serviceHighlights.services.map((service: any, idx: number) => (
                 <div
                   key={idx}
-                  className="border h-full flex flex-col"
+                  className="border p-5 h-full flex flex-col"
                   style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
                 >
-                  {solution.image && (
-                    <img src={solution.image} alt={solution.title} className="w-full h-40 object-cover" />
-                  )}
-                  <div className="p-6 space-y-3">
-                    <h3 className="text-xl font-semibold" style={{ color: colors.text }}>{solution.title}</h3>
-                    <p className="text-sm" style={{ color: colors.text }}>{solution.description}</p>
-                    <div className="flex flex-wrap gap-3 text-sm">
-                      {solution.system_size && (
-                        <Badge variant="outline" className="bg-white" style={{ borderColor: colors.primary, color: colors.primary }}>
-                          {t('Size')}: {solution.system_size}
-                        </Badge>
-                      )}
-                      {solution.estimated_payback && (
-                        <Badge variant="outline" className="bg-white" style={{ borderColor: colors.secondary, color: colors.secondary }}>
-                          {t('Payback')}: {solution.estimated_payback}
-                        </Badge>
-                      )}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full text-xl" style={{ backgroundColor: colors.accent, color: colors.primary }}>
+                      {service.icon}
                     </div>
+                    <h3 className="text-lg font-semibold" style={{ color: colors.text }}>{service.title}</h3>
                   </div>
+                  <p className="text-sm flex-grow" style={{ color: colors.text }}>{service.description}</p>
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
+              <SunMedium className="h-8 w-8 text-amber-400" />
+              <h3 className="text-lg font-semibold" style={{ color: colors.text }}>
+                {t('Services Section')}
+              </h3>
+              <p className="text-sm" style={{ color: colors.text }}>
+                {t('This section pulls data from your Services page. Add services there to display them here.')}
+              </p>
+            </div>
+          )}
+          {serviceHighlights.cta_label && (
+            <div className="mt-6 text-center">
+              <Button
+                style={{ backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF', fontFamily: font }}
+                onClick={() => serviceHighlights.cta_link && window.open(serviceHighlights.cta_link, '_blank', 'noopener,noreferrer')}
+              >
+                {serviceHighlights.cta_label}
+              </Button>
+            </div>
+          )}
+        </section>
 
-        {Array.isArray(commercial) && commercial.length > 0 && (
-          <section>
-            <div className="flex flex-col items-center text-center gap-2 mb-6">
-              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{t('Commercial & Industrial Solutions')}</h2>
-              <Badge className="bg-[rgba(14,165,233,0.12)] text-[rgba(14,165,233,1)] flex items-center gap-1">
-                <Building2 className="w-4 h-4" />
-                {t('Businesses')}
-              </Badge>
-            </div>
-            <div className="space-y-6">
-              {commercial.map((solution: any, idx: number) => (
+        <section>
+          <div className="space-y-2 mb-6 text-center">
+            <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{packages.heading || t('Solar Packages')}</h2>
+            {packages.subheading && (
+              <p className="text-sm" style={{ color: colors.text }}>{packages.subheading}</p>
+            )}
+          </div>
+          {packages && Array.isArray(packages.package_list) && packages.package_list.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6">
+              {packages.package_list.map((pkg: any, idx: number) => (
                 <div
                   key={idx}
-                  className="rounded-2xl border h-full flex flex-col"
+                  className="rounded-2xl border p-6 text-left"
                   style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
                 >
-                  {solution.image && (
-                    <img src={solution.image} alt={solution.title} className="w-full h-40 object-cover rounded-t-2xl" />
+                  <Badge className="mb-4" style={{ backgroundColor: colors.accent, color: colors.primary }}>
+                    {pkg.name}
+                  </Badge>
+                  <h3 className="text-lg font-semibold mb-2" style={{ color: colors.text }}>{pkg.description}</h3>
+                  <p className="text-base font-medium mb-3" style={{ color: colors.primary }}>{pkg.price}</p>
+                  {pkg.timeline && (
+                    <p className="text-xs uppercase tracking-wide mb-3" style={{ color: colors.text + '99' }}>Timeline: {pkg.timeline}</p>
                   )}
-                  <div className="p-6 space-y-3">
-                    <h3 className="text-xl font-semibold" style={{ color: colors.text }}>{solution.title}</h3>
-                    <p className="text-sm" style={{ color: colors.text }}>{solution.description}</p>
-                    <div className="flex flex-wrap gap-3 text-sm">
-                      {solution.system_size && (
-                        <Badge variant="outline" className="bg-white" style={{ borderColor: colors.primary, color: colors.primary }}>
-                          {t('System Size')}: {solution.system_size}
-                        </Badge>
-                      )}
-                      {solution.industry_focus && (
-                        <Badge variant="outline" className="bg-white" style={{ borderColor: colors.secondary, color: colors.secondary }}>
-                          {solution.industry_focus}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+                  {pkg.features && (
+                    <ul className="space-y-2 text-sm mb-4" style={{ color: colors.text + 'CC' }}>
+                      {pkg.features.split('\n').map((feature: string, featureIndex: number) => (
+                        <li key={featureIndex} className="flex items-start gap-2">
+                          <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center bg-emerald-100 text-[8px] font-bold text-emerald-600 rounded-full">✓</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {pkg.cta_label && (
+                    <Button
+                      className="w-full mt-2"
+                      style={{ backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF', fontFamily: font }}
+                      onClick={() => pkg.cta_link && window.open(pkg.cta_link, '_blank', 'noopener,noreferrer')}
+                    >
+                      {pkg.cta_label}
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
+              <Zap className="h-8 w-8 text-amber-400" />
+              <h3 className="text-lg font-semibold" style={{ color: colors.text }}>
+                {t('Packages Section')}
+              </h3>
+              <p className="text-sm" style={{ color: colors.text }}>
+                {t('This section pulls data from your Packages page. Add packages there to display them here.')}
+              </p>
+            </div>
+          )}
+        </section>
 
         {(Array.isArray(financing.options) && financing.options.length > 0) || (Array.isArray(financing.incentives) && financing.incentives.length > 0) ? (
           <section className="space-y-6 sm:space-y-8">
@@ -612,71 +638,94 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
           </section>
         ) : null}
 
-        {Array.isArray(portfolio) && portfolio.length > 0 && (
+        {isSectionActive('featured_projects') && (
           <section>
-            <div className="flex flex-col items-center gap-3 text-center mb-6">
-              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{t('Featured Installations')}</h2>
-              <Badge variant="outline" className="bg-white" style={{ borderColor: colors.primary, color: colors.primary }}>
-                {t('Case Studies')}
-              </Badge>
+            <div className="space-y-2 mb-6 text-center">
+              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{featuredProjects.heading || t('Our Featured Projects')}</h2>
+              {featuredProjects.subheading && (
+                <p className="text-sm" style={{ color: colors.text }}>{featuredProjects.subheading}</p>
+              )}
             </div>
-            <div className="space-y-6">
-              {portfolio.map((project: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="border overflow-hidden"
-                  style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
-                >
-                  {project.image && <img src={project.image} alt={project.title} className="w-full h-44 object-cover" />}
-                  <div className="p-6 space-y-2">
-                    <h3 className="text-xl font-semibold" style={{ color: colors.text }}>{project.title}</h3>
-                    <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>{project.summary}</p>
-                    <div className="grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
-                      {project.location && (
-                        <span style={{ color: colors.secondary }}>{t('Location')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.location}</strong></span>
-                      )}
-                      {project.system_size && (
-                        <span style={{ color: colors.secondary }}>{t('Size')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.system_size}</strong></span>
-                      )}
-                      {project.production && (
-                        <span style={{ color: colors.secondary }}>{t('Production')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.production}</strong></span>
-                      )}
-                      {project.year_completed && (
-                        <span style={{ color: colors.secondary }}>{t('Completed')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.year_completed}</strong></span>
-                      )}
+            {featuredProjects && Array.isArray(featuredProjects.projects) && featuredProjects.projects.length > 0 ? (
+              <div className="space-y-6">
+                {featuredProjects.projects.map((project: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="border overflow-hidden"
+                    style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
+                  >
+                    {project.media && project.media.length > 0 && (
+                      <img 
+                        src={project.media[0].url} 
+                        alt={project.title} 
+                        className="w-full h-44 object-cover" 
+                      />
+                    )}
+                    <div className="p-6 space-y-2">
+                      <h3 className="text-xl font-semibold" style={{ color: colors.text }}>{project.title}</h3>
+                      <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>{project.summary}</p>
+                      <div className="grid grid-cols-2 gap-3 text-xs uppercase tracking-wide">
+                        {project.location && (
+                          <span style={{ color: colors.secondary }}>{t('Location')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.location}</strong></span>
+                        )}
+                        {project.category && (
+                          <span style={{ color: colors.secondary }}>{t('Category')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.category}</strong></span>
+                        )}
+                        {project.description && (
+                          <span style={{ color: colors.secondary }}>{t('Description')}:<br /><strong className="text-sm" style={{ color: colors.text }}>{project.description}</strong></span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
+                <Building2 className="h-8 w-8 text-amber-400" />
+                <h3 className="text-lg font-semibold" style={{ color: colors.text }}>
+                  {t('Featured Projects Section')}
+                </h3>
+                <p className="text-sm" style={{ color: colors.text }}>
+                  {t('This section pulls data from your Featured Projects page. Add projects there to display them here.')}
+                </p>
+              </div>
+            )}
           </section>
         )}
 
         {galleryActive && (
           <section className="border p-6" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
             <div className="mb-6 space-y-2 text-center">
-              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{t('Project Gallery')}</h2>
-              <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>
-                {t('Showcase recent solar installations and system upgrades to build trust with new clients.')}
-              </p>
+              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{galleryData.heading || t('Project Gallery')}</h2>
+              {galleryData.subheading && (
+                <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>
+                  {galleryData.subheading}
+                </p>
+              )}
             </div>
-            {Array.isArray(galleryImages) && galleryImages.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {galleryImages.map((item: any, idx: number) => (
-                  <div key={idx} className="border" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}>
-                    {item.image && (
-                      <div className="relative w-full" style={{ paddingBottom: '66%' }}>
-                        <img
-                          src={item.image}
-                          alt={item.caption || t('Gallery image')}
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
+            {galleryData && galleryData.items && Array.isArray(galleryData.items) && galleryData.items.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                {galleryData.items.map((item: any, idx: number) => (
+                  <div key={idx} className="border overflow-hidden rounded-lg" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}>
+                    {item.media_url && (
+                      <div className="relative w-full" style={{ paddingBottom: item.media_type === 'image' ? '75%' : '56.25%' }}>
+                        {item.media_type === 'image' ? (
+                          <img
+                            src={item.media_url}
+                            alt={item.title || t('Gallery image')}
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                            <VideoIcon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="p-4 space-y-2">
-                      {item.caption && (
+                      {item.title && (
                         <h3 className="text-lg font-semibold" style={{ color: colors.primary }}>
-                          {item.caption}
+                          {item.title}
                         </h3>
                       )}
                       {item.description && (
@@ -691,8 +740,11 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
                 <SunMedium className="h-8 w-8 text-amber-400" />
+                <h3 className="text-lg font-semibold" style={{ color: colors.text }}>
+                  {t('Gallery Section')}
+                </h3>
                 <p className="text-sm" style={{ color: colors.text }}>
-                  {t('Add gallery images in the editor to showcase your solar installations here.')}
+                  {t('This section pulls data from your Gallery page. Add images there to display them here.')}
                 </p>
               </div>
             )}
@@ -741,227 +793,161 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
           </section>
         )}
 
-        {(calculator.cta_title || calculator.cta_description) && (
+        {contactForm.form_title && (
           <section className="border p-6 sm:p-8" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
             <div className="space-y-6">
-              <div className="space-y-4">
+              <div className="space-y-4 text-center">
                 <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>
-                  {calculator.cta_title || t('Estimate Your Solar Savings')}
+                  {contactForm.form_title || t('Get a Free Solar Quote')}
                 </h2>
-                <p className="text-sm" style={{ color: colors.text }}>
-                  {calculator.cta_description || t('Enter a few quick details to preview potential savings with solar and storage.')}
-                </p>
-                <ul className="space-y-2 text-sm" style={{ color: colors.text }}>
-                  {calculator.monthly_bill_label && <li>• {calculator.monthly_bill_label}</li>}
-                  {calculator.zip_label && <li>• {calculator.zip_label}</li>}
-                  {calculator.sun_hours_label && <li>• {calculator.sun_hours_label}</li>}
-                </ul>
+                {contactForm.form_description && (
+                  <p className="text-sm" style={{ color: colors.text }}>
+                    {contactForm.form_description}
+                  </p>
+                )}
               </div>
               <div className="bg-white border p-6 space-y-4" style={{ borderColor: colors.borderColor || '#E2E8F0' }}>
-                <div className="grid gap-3">
-                  <input
-                    className="rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-                    placeholder={calculator.monthly_bill_label || t('Average Monthly Bill ($)')}
-                    style={{ borderColor: colors.borderColor || '#E2E8F0' }}
-                  />
-                  <input
-                    className="rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-                    placeholder={calculator.zip_label || t('ZIP / Postal Code')}
-                    style={{ borderColor: colors.borderColor || '#E2E8F0' }}
-                  />
-                  <input
-                    className="rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-                    placeholder={calculator.sun_hours_label || t('Average Sun Hours per Day')}
-                    style={{ borderColor: colors.borderColor || '#E2E8F0' }}
-                  />
-                </div>
-                <Button
-                  className="w-full"
-                  style={{ fontFamily: font, backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF' }}
-                >
-                  {calculator.submit_label || t('Calculate Savings')}
-                </Button>
-                <p className="text-xs text-muted-foreground" style={{ color: colors.text }}>
-                  {t('Estimates are illustrative. A solar consultant will confirm numbers during your assessment.')}
-                </p>
+                <form className="space-y-4">
+                  <div>
+                    <input
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                      placeholder={t('Full Name')}
+                      style={{ borderColor: colors.borderColor || '#E2E8F0' }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="email"
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                      placeholder={t('Email Address')}
+                      style={{ borderColor: colors.borderColor || '#E2E8F0' }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="tel"
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                      placeholder={t('Phone Number')}
+                      style={{ borderColor: colors.borderColor || '#E2E8F0' }}
+                    />
+                  </div>
+                  <div>
+                    <textarea
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                      placeholder={t('Tell us about your project...')}
+                      rows={3}
+                      style={{ borderColor: colors.borderColor || '#E2E8F0' }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    className="w-full"
+                    style={{ fontFamily: font, backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF' }}
+                    onClick={() => typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('openContactModal'))}
+                  >
+                    {t('Send Inquiry')}
+                  </Button>
+                </form>
+                {contactForm.success_message && (
+                  <p className="text-xs text-muted-foreground text-center" style={{ color: colors.text }}>
+                    {contactForm.success_message}
+                  </p>
+                )}
               </div>
             </div>
           </section>
         )}
 
-        {(appointments.booking_url || contact.phone || contact.email || contact.website || contact.office_address || contact.service_hours || (Array.isArray(socialLinks) && socialLinks.length > 0)) && (
-          <section className="space-y-6">
-            {appointments.booking_url && (
-              <div
-                className="border p-6 space-y-6"
-                style={{
-                  borderColor: colors.borderColor || '#E2E8F0',
-                  background: bookingBackground,
-                  color: '#FFFFFF'
-                }}
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-12 w-12 items-center justify-center bg-white/20">
-                      <CalendarCheck className="h-6 w-6" />
-                    </span>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-white/70">
-                        {appointments.kicker || t('Plan Ahead')}
-                      </p>
-                      <h2 className="text-2xl font-semibold text-white">
-                        {appointments.cta_title || t('Schedule Your Solar Consultation')}
-                      </h2>
-                    </div>
+
+        {(contact.phone || contact.email || contact.website || contact.office_address || contact.service_hours || (Array.isArray(socialLinks) && socialLinks.length > 0)) && (
+          <div className="border p-5 space-y-4" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
+            <h2 className="text-xl font-semibold" style={{ color: colors.primary }}>{t('Get in Touch')}</h2>
+            <div className="space-y-4 text-sm" style={{ color: colors.text }}>
+              {contact.phone && (
+                <div className="flex gap-3">
+                  <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
+                    <Phone className="h-4 w-4" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Call')}</p>
+                    <a href={`tel:${formatPhone(contact.phone)}`} className="font-medium hover:underline">
+                      {contact.phone}
+                    </a>
                   </div>
-                  <p className="text-sm text-white/85">
-                    {appointments.cta_text || t('Reserve a time to review your energy goals, incentives, and custom installation roadmap with our solar specialists.')}
-                  </p>
-                  <div className="grid gap-2 text-sm text-white/90">
-                    {(appointmentHighlights.length > 0 ? appointmentHighlights : [
-                      t('Personalized savings projection'),
-                      t('Roof + usage assessment'),
-                      t('Tax credit & rebate guidance'),
-                      t('Live Q&A with consultant')
-                    ]).map((item: any, idx: number) => {
-                      const label = typeof item === 'string'
-                        ? item
-                        : item?.label || item?.title || item?.text || '';
-                      if (!label) return null;
-                      return (
-                        <div key={idx} className="flex items-start gap-2">
-                          <span className="mt-1 inline-flex h-5 w-5 items-center justify-center bg-white/25 text-[11px] font-semibold text-white">✓</span>
-                          <span className="leading-tight text-white">{label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {appointments.note && (
-                    <p className="text-xs text-white/70 leading-snug">
-                      {appointments.note}
-                    </p>
-                  )}
                 </div>
-                <div className="space-y-3">
-                  <Button
-                    size="lg"
-                    className="h-12 w-full bg-white text-slate-900 transition hover:bg-slate-100"
-                    style={{ fontFamily: font }}
-                    onClick={() => window.open(appointments.booking_url, '_blank', 'noopener,noreferrer')}
-                  >
-                    {appointments.button_label || t('Book Consultation')}
-                  </Button>
-                  {(contact.phone || contact.email) && (
-                    <div className="border border-white/30 p-3 text-xs text-white/85">
-                      <p className="flex items-center gap-2">
-                        <span className="h-2 w-2 bg-white/70" />
-                        {t('Prefer to talk now?')}
-                      </p>
-                      {contact.phone && (
-                        <p className="mt-2 text-sm font-medium">
-                          {t('Call')}: <a href={`tel:${formatPhone(contact.phone)}`} className="underline-offset-2 hover:underline text-white">{contact.phone}</a>
-                        </p>
-                      )}
-                      {contact.email && (
-                        <p className="text-sm font-medium">
-                          {t('Email')}: <a href={`mailto:${contact.email}`} className="underline-offset-2 hover:underline text-white">{contact.email}</a>
-                        </p>
-                      )}
-                    </div>
-                  )}
+              )}
+              {contact.email && (
+                <div className="flex gap-3">
+                  <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Email')}</p>
+                    <a href={`mailto:${contact.email}`} className="font-medium hover:underline">
+                      {contact.email}
+                    </a>
+                  </div>
+                </div>
+              )}
+              {contact.website && (
+                <div className="flex gap-3">
+                  <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
+                    <Globe className="h-4 w-4" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Website')}</p>
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                      {contact.website}
+                    </a>
+                  </div>
+                </div>
+              )}
+              {contact.office_address && (
+                <div className="flex gap-3">
+                  <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
+                    <MapPin className="h-4 w-4" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Office')}</p>
+                    <span className="font-medium leading-snug">{contact.office_address}</span>
+                  </div>
+                </div>
+              )}
+              {contact.service_hours && (
+                <div className="flex gap-3">
+                  <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
+                    <Clock className="h-4 w-4" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Hours')}</p>
+                    <span className="font-medium leading-snug">{contact.service_hours}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {Array.isArray(socialLinks) && socialLinks.length > 0 && (
+              <div className="pt-4 border-t" style={{ borderColor: colors.borderColor || '#E2E8F0' }}>
+                <h3 className="text-sm font-semibold mb-3" style={{ color: colors.primary }}>{t('Connect Online')}</h3>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {socialLinks.map((link: any, idx: number) => (
+                    <a
+                      key={`${link.platform || 'link'}-${idx}`}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 border hover:bg-[rgba(0,0,0,0.05)]"
+                      style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.text }}
+                    >
+                      {link.platform ? link.platform.toUpperCase() : t('Link')}
+                    </a>
+                  ))}
                 </div>
               </div>
             )}
-
-            {(contact.phone || contact.email || contact.website || contact.office_address || contact.service_hours || (Array.isArray(socialLinks) && socialLinks.length > 0)) && (
-              <div className="border p-5 space-y-4" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
-                <h2 className="text-xl font-semibold" style={{ color: colors.primary }}>{t('Get in Touch')}</h2>
-                <div className="space-y-4 text-sm" style={{ color: colors.text }}>
-                  {contact.phone && (
-                    <div className="flex gap-3">
-                      <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
-                        <Phone className="h-4 w-4" />
-                      </span>
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Call')}</p>
-                        <a href={`tel:${formatPhone(contact.phone)}`} className="font-medium hover:underline">
-                          {contact.phone}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                  {contact.email && (
-                    <div className="flex gap-3">
-                      <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
-                        <Mail className="h-4 w-4" />
-                      </span>
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Email')}</p>
-                        <a href={`mailto:${contact.email}`} className="font-medium hover:underline">
-                          {contact.email}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                  {contact.website && (
-                    <div className="flex gap-3">
-                      <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
-                        <Globe className="h-4 w-4" />
-                      </span>
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Website')}</p>
-                        <a href={contact.website} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
-                          {contact.website}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                  {contact.office_address && (
-                    <div className="flex gap-3">
-                      <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
-                        <MapPin className="h-4 w-4" />
-                      </span>
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Office')}</p>
-                        <span className="font-medium leading-snug">{contact.office_address}</span>
-                      </div>
-                    </div>
-                  )}
-                  {contact.service_hours && (
-                    <div className="flex gap-3">
-                      <span className="mt-1 inline-flex h-8 w-8 items-center justify-center border" style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.primary }}>
-                        <Clock className="h-4 w-4" />
-                      </span>
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-wide" style={{ color: colors.primary }}>{t('Hours')}</p>
-                        <span className="font-medium leading-snug">{contact.service_hours}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {Array.isArray(socialLinks) && socialLinks.length > 0 && (
-                  <div className="pt-4 border-t" style={{ borderColor: colors.borderColor || '#E2E8F0' }}>
-                    <h3 className="text-sm font-semibold mb-3" style={{ color: colors.primary }}>{t('Connect Online')}</h3>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      {socialLinks.map((link: any, idx: number) => (
-                        <a
-                          key={`${link.platform || 'link'}-${idx}`}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1 border hover:bg-[rgba(0,0,0,0.05)]"
-                          style={{ borderColor: colors.borderColor || '#E2E8F0', color: colors.text }}
-                        >
-                          {link.platform ? link.platform.toUpperCase() : t('Link')}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
+          </div>
         )}
 
         {Array.isArray(businessHours) && businessHours.length > 0 && (

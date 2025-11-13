@@ -25,6 +25,7 @@ class VCardBuilderController extends Controller
     public function index(Request $request)
     {
         $authUser = auth()->user();
+        $authUser->loadMissing('onboardingProfile');
         
         // Apply business filtering based on user type and permissions
         if ($authUser->type === 'company') {
@@ -108,6 +109,7 @@ class VCardBuilderController extends Controller
     public function create()
     {
         $user = auth()->user()->load(['plan', 'roles']);
+        $user->loadMissing('onboardingProfile');
         
         // Check plan limits for company users
         if ($user->type === 'company' && $user->plan) {
@@ -156,7 +158,8 @@ class VCardBuilderController extends Controller
         return Inertia::render('vcard-builder/create', [
             'userPlan' => $userPlan,
             'planFeatures' => $planFeatures,
-            'userRole' => $user->roles->pluck('name')->first() ?? null
+            'userRole' => $user->roles->pluck('name')->first() ?? null,
+            'onboardingProfile' => $user->onboardingProfile
         ]);
     }
 
@@ -223,6 +226,10 @@ class VCardBuilderController extends Controller
  
         // Convert media URLs to relative paths in config_sections
         if (isset($validated['config_sections'])) {
+            $validated['config_sections'] = $this->mergeContactDetailsFromOnboarding(
+                $validated['config_sections'],
+                $authUser->onboardingProfile
+            );
             $validated['config_sections'] = $this->convertMediaUrlsToRelativePaths($validated['config_sections']);
         }
         
@@ -316,13 +323,15 @@ class VCardBuilderController extends Controller
             'business' => $business,
             'userPlan' => $userPlan,
             'planFeatures' => $planFeatures,
-            'userRole' => $user->roles->pluck('name')->first() ?? $user->type
+            'userRole' => $user->roles->pluck('name')->first() ?? $user->type,
+            'onboardingProfile' => $user->onboardingProfile,
         ]);
     }
 
     public function update(Request $request, Business $business)
     {
         $user = auth()->user();
+        $user->loadMissing('onboardingProfile');
         
         // Check if user has access to this business
         // $hasAccess = false;
@@ -389,6 +398,10 @@ class VCardBuilderController extends Controller
 
         // Convert media URLs to relative paths in config_sections
         if (isset($updateData['config_sections'])) {
+            $updateData['config_sections'] = $this->mergeContactDetailsFromOnboarding(
+                $updateData['config_sections'],
+                $user->onboardingProfile
+            );
             $updateData['config_sections'] = $this->convertMediaUrlsToRelativePaths($updateData['config_sections']);
         }
         
@@ -455,14 +468,32 @@ class VCardBuilderController extends Controller
     
     public function preview(Business $business)
     {
-        // Sanitize business data to prevent Symbol serialization errors
-        $sanitizedBusiness = $this->sanitizeSymbols($business->toArray());
+        // Get business ID before converting to array
+        $businessId = $business->id;
+
+        // Load full business model with relationships for catalog and ecommerce syncing
+        $businessModel = 
+            \App\Models\Business::with([
+                'services.media',
+                'packages.features',
+                'projects.media',
+                'categories.media',
+                'products.media',
+                'products.category'
+            ])->find($businessId);
         
+        // Convert relative media paths to full URLs for display
+        if (is_array($businessModel->config_sections)) {
+            $businessModel->config_sections = $this->convertRelativePathsToUrls($businessModel->config_sections);
+        }
+
+        $businessData = $this->sanitizeSymbols($businessModel->toArray());
+
         return Inertia::render('public/VCardView', [
-            'business' => $sanitizedBusiness
+            'business' => $businessData,
         ]);
     }
-    
+
     public function previewTemplate()
     {
         return Inertia::render('public/VCardPreview', [], function ($page) {
@@ -819,10 +850,77 @@ class VCardBuilderController extends Controller
         if (isset($business->config_sections)) {
             $business->config_sections = $this->recursivelyConvertPathsToUrls($business->config_sections);
         }
-        
+
         return $business;
     }
-    
+
+    private function mergeContactDetailsFromOnboarding(array $configSections, $onboardingProfile): array
+    {
+        if (!$onboardingProfile) {
+            return $configSections;
+        }
+
+        $contact = $configSections['contact'] ?? [];
+
+        $contact['phone'] = $this->resolveOnboardingValue(
+            $contact['phone'] ?? null,
+            $onboardingProfile->contact_phone ?? null
+        );
+
+        $contact['whatsapp'] = $this->resolveOnboardingValue(
+            $contact['whatsapp'] ?? null,
+            $onboardingProfile->whatsapp ?? null
+        );
+
+        $contact['email'] = $this->resolveOnboardingValue(
+            $contact['email'] ?? null,
+            $onboardingProfile->contact_email ?? null
+        );
+
+        $contact['website'] = $this->resolveOnboardingValue(
+            $contact['website'] ?? null,
+            $onboardingProfile->website ?? null
+        );
+
+        $contact['location'] = $this->resolveOnboardingValue(
+            $contact['location'] ?? null,
+            $this->buildOnboardingAddress($onboardingProfile)
+        );
+
+        $configSections['contact'] = $contact;
+
+        return $configSections;
+    }
+
+    private function resolveOnboardingValue($currentValue, $onboardingValue)
+    {
+        if (is_string($onboardingValue) && trim($onboardingValue) !== '') {
+            return $onboardingValue;
+        }
+
+        return $currentValue;
+    }
+
+    private function buildOnboardingAddress($onboardingProfile): ?string
+    {
+        $parts = [
+            $onboardingProfile->address_line1 ?? null,
+            $onboardingProfile->address_line2 ?? null,
+            $onboardingProfile->city ?? null,
+            $onboardingProfile->country ?? null,
+        ];
+
+        $filtered = array_filter($parts, function ($value) {
+            return is_string($value) && trim($value) !== '';
+        });
+
+        if (empty($filtered)) {
+            return null;
+        }
+
+        return implode(', ', $filtered);
+    }
+
     /**
      * Recursively convert relative paths to full URLs
      */

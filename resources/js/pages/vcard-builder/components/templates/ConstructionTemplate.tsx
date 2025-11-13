@@ -947,7 +947,8 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
               className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-105"
               style={{ 
                 backgroundColor: colors.primary,
-                color: colors.buttonText
+                color: colors.buttonText,
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}
             >
               <SocialIcon platform={link.platform} color="currentColor" />
@@ -1338,11 +1339,12 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
             {youtubeData.featured_playlist && (
               <Button 
                 variant="outline" 
-                className="w-full" 
+                className="w-full font-medium" 
                 style={{ 
                   borderColor: colors.primary, 
                   color: colors.primary, 
-                  fontFamily: font 
+                  fontFamily: font,
+                  backgroundColor: 'transparent'
                 }}
                 onClick={() => typeof window !== "undefined" && window.open(youtubeData.featured_playlist, '_blank', 'noopener,noreferrer')}
               >
@@ -1511,12 +1513,14 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
           
           <div className="flex flex-col space-y-3">
             <Button
-              className="w-full"
+              className="w-full font-semibold"
               style={{ 
                 backgroundColor: colors.background,
                 color: colors.primary,
                 fontFamily: font,
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                borderColor: colors.primary,
+                borderWidth: '1px'
               }}
               onClick={() => handleAppointmentBooking(configSections.appointments)}
             >
@@ -1525,12 +1529,13 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
             </Button>
             
             <Button
-              className="w-full"
+              className="w-full font-semibold"
               style={{ 
                 backgroundColor: colors.secondary,
                 color: colors.buttonText,
                 fontFamily: font,
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}
               onClick={() => typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('openContactModal'))}
             >
@@ -1658,10 +1663,12 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
           {appData.app_store_url && (
             <Button 
               variant="outline" 
+              className="font-medium"
               style={{ 
                 borderColor: colors.primary,
                 color: colors.primary,
-                fontFamily: font
+                fontFamily: font,
+                backgroundColor: 'transparent'
               }}
               onClick={() => typeof window !== "undefined" && window.open(appData.app_store_url, '_blank', 'noopener,noreferrer')}
             >
@@ -1672,10 +1679,12 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
           {appData.play_store_url && (
             <Button 
               variant="outline" 
+              className="font-medium"
               style={{ 
                 borderColor: colors.primary,
                 color: colors.primary,
-                fontFamily: font
+                fontFamily: font,
+                backgroundColor: 'transparent'
               }}
               onClick={() => typeof window !== "undefined" && window.open(appData.play_store_url, '_blank', 'noopener,noreferrer')}
             >
@@ -1729,11 +1738,12 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
         )}
         
         <Button 
-          className="w-full"
+          className="w-full font-semibold"
           style={{ 
             backgroundColor: colors.primary,
             color: colors.buttonText,
-            fontFamily: font
+            fontFamily: font,
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
           }}
           onClick={() => typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('openContactModal'))}
         >
@@ -1885,11 +1895,12 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
           )}
           
           <Button 
-            className="w-full" 
+            className="w-full font-semibold" 
             style={{ 
               backgroundColor: colors.primary,
               color: colors.buttonText,
-              fontFamily: font
+              fontFamily: font,
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
             }}
             onClick={() => setShowQrModal(true)}
           >
@@ -1936,7 +1947,8 @@ export default function ConstructionTemplate({ data, template }: ConstructionTem
                 style={{ 
                   backgroundColor: colors.primary + '20',
                   color: colors.primary,
-                  fontFamily: font
+                  fontFamily: font,
+                  border: `1px solid ${colors.primary}`
                 }}
               >
                 {link.title}

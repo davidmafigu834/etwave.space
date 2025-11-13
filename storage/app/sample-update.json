@@ -1,0 +1,32 @@
+{
+  "version": "1.0.1",
+  "name": "User Management & System Info Enhancement",
+  "description": "Added phone number and login tracking to user profiles, plus enhanced system information display",
+  "changelog": [
+    "Added phone number field to user profiles",
+    "Added last login tracking functionality",
+    "Enhanced system information component",
+    "Improved user management interface",
+    "Added example controller with update integration"
+  ],
+  "requires": {
+    "php": ">=8.2",
+    "mysql": ">=8.0",
+    "backup": true
+  },
+  "files": [
+    "database/migrations/2025_01_23_000001_add_user_phone_and_login_tracking.php",
+    "app/Http/Controllers/ExampleController.php",
+    "resources/js/components/SystemInfo.tsx"
+  ],
+  "actions": [
+    {
+      "type": "run_migrations",
+      "description": "Run user management migrations"
+    },
+    {
+      "type": "clear_cache",
+      "description": "Clear application and view caches"
+    }
+  ]
+}

@@ -147,6 +147,9 @@ class PublicVCardController extends Controller
         }
         $business->increment('view_count');
         
+        // Get business ID before converting to array
+        $businessId = $business->id;
+        
         // Convert relative media paths to full URLs for display
         $business = $this->convertRelativePathsToUrls($business);
         
@@ -156,10 +159,76 @@ class PublicVCardController extends Controller
         // Extract SEO data for meta tags
         $seoData = $this->extractSeoData($business);
         
+        // Load catalog data (services and packages)
+        $catalogData = [];
+        $businessModel = \App\Models\Business::find($businessId);
+        if ($businessModel) {
+            $catalogData['service_highlights'] = [
+                'services' => $businessModel->services()->orderBy('order_index')->get()->map(function ($service) {
+                    return [
+                        'icon' => $service->meta['icon'] ?? '🔧',
+                        'title' => $service->name,
+                        'description' => $service->summary ?? $service->description,
+                    ];
+                })->values()
+            ];
+            
+            $catalogData['packages'] = [
+                'package_list' => $businessModel->packages()->orderBy('order_index')->get()->map(function ($package) {
+                    return [
+                        'name' => $package->name,
+                        'description' => $package->headline ?? $package->description,
+                        'price' => $package->price_display ?? (isset($package->price_amount) ? $package->price_currency . ' ' . $package->price_amount : ''),
+                        'timeline' => $package->duration_label ?? '',
+                        'features' => $package->features->map(fn($feature) => $feature->feature)->join("\n"),
+                        'cta_label' => $package->cta_label ?? 'Learn More',
+                        'cta_link' => $package->cta_link ?? '#',
+                    ];
+                })->values()
+            ];
+            
+            // Load featured projects
+            $catalogData['featured_projects'] = [
+                'projects' => $businessModel->projects()->where('is_featured', true)->orderBy('order_index')->get()->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'title' => $project->title,
+                        'slug' => $project->slug,
+                        'category' => $project->category,
+                        'location' => $project->location,
+                        'summary' => $project->summary,
+                        'description' => $project->description,
+                        'cta_label' => $project->cta_label,
+                        'cta_link' => $project->cta_link,
+                        'is_featured' => $project->is_featured,
+                        'order_index' => $project->order_index,
+                        'meta' => $project->meta,
+                        'media' => $project->media->map(function ($media) {
+                            return [
+                                'id' => $media->id,
+                                'url' => $media->getFullUrl(),
+                                'name' => $media->name,
+                                'file_name' => $media->file_name,
+                                'mime_type' => $media->mime_type,
+                                'size' => $media->size,
+                                'order_index' => $media->pivot->order_index,
+                                'caption' => $media->pivot->caption,
+                            ];
+                        })->values()
+                    ];
+                })->values()
+            ];
+        }
+        
+        // Merge catalog data with business data
+        if (!empty($catalogData)) {
+            $business['catalog_sections'] = $catalogData;
+        }
+        
         // Show the vCard
         return Inertia::render('public/VCardView', [
             'business' => $business,
-            'pwa_enabled' => $business->config_sections['pwa']['enabled'] ?? false,
+            'pwa_enabled' => $business['config_sections']['pwa']['enabled'] ?? false,
             'seo_data' => $seoData
         ]);
     }

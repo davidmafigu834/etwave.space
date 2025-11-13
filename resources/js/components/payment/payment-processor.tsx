@@ -41,7 +41,7 @@ import { SSPayPaymentForm } from './sspay-payment-form';
 import { TapPaymentForm } from './tap-payment-form';
 import { XenditPaymentForm } from './xendit-payment-form';
 import { ManualPaymentForm } from './manual-payment-form';
-import { PaynowPaymentForm } from './paynow-payment-form';
+import { SimplePaynowButton } from './simple-paynow-button';
 import { router } from '@inertiajs/react';
 
 interface PaymentMethod {
@@ -325,10 +325,9 @@ export function PaymentProcessor({
         );
       case 'paynow':
         return (
-          <PaynowPaymentForm
+          <SimplePaynowButton
             {...commonProps}
             planPrice={Number(plan.price)}
-            merchantId={plan.paymentMethods?.paynow_merchant_id || ''}
           />
         );
       case 'paytr':
@@ -576,29 +575,55 @@ export function PaymentProcessor({
           </div>
         ) : (
           <div className="space-y-2">
-            {enabledPaymentMethods.map((method, index) => (
-              <Card 
-                key={`${method.id}-${index}`}
-                className={`cursor-pointer transition-colors ${
-                  selectedPaymentMethod === method.id 
-                    ? 'border-primary bg-primary/5' 
-                    : 'hover:border-gray-300'
-                }`}
-                onClick={() => setSelectedPaymentMethod(method.id)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="text-primary">{method.icon}</div>
-                    <span className="font-medium">{method.name}</span>
-                    {selectedPaymentMethod === method.id && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {t('Selected')}
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {enabledPaymentMethods.map((method, index) => {
+              if (method.id === 'paynow') {
+                return (
+                  <Card
+                    key={`${method.id}-${index}`}
+                    className={`cursor-pointer transition-colors ${
+                      selectedPaymentMethod === method.id
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedPaymentMethod(method.id)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="text-primary">{method.icon}</div>
+                        <span className="font-medium">{method.name}</span>
+                        <Badge variant="secondary" className="ml-auto">
+                          {t('Mobile Express Only')}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              return (
+                <Card
+                  key={`${method.id}-${index}`}
+                  className={`cursor-pointer transition-colors ${
+                    selectedPaymentMethod === method.id
+                      ? 'border-primary bg-primary/5'
+                      : 'hover:border-gray-300'
+                  }`}
+                  onClick={() => setSelectedPaymentMethod(method.id)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-primary">{method.icon}</div>
+                      <span className="font-medium">{method.name}</span>
+                      {selectedPaymentMethod === method.id && (
+                        <Badge variant="secondary" className="ml-auto">
+                          {t('Selected')}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
         

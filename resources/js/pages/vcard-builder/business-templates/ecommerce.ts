@@ -5,46 +5,58 @@ export const ecommerceTemplate = {
   name: 'E-commerce Store',
   sections: [
     {
-      key: 'header',
-      name: 'Header',
+      key: 'hero',
+      name: 'Hero Section',
       fields: [
-        { name: 'name', type: 'text', label: 'Store Name' },
-        { name: 'tagline', type: 'textarea', label: 'Tagline' },
-        { name: 'logo', type: 'file', label: 'Logo' }
+        { name: 'title', type: 'text', label: 'Hero Title' },
+        { name: 'subtitle', type: 'textarea', label: 'Hero Subtitle' },
+        { name: 'image', type: 'file', label: 'Hero Background Image' },
+        { name: 'button_text', type: 'text', label: 'Primary Button Text' },
+        { name: 'button_url', type: 'url', label: 'Primary Button URL' },
+        { name: 'secondary_button_text', type: 'text', label: 'Secondary Button Text' },
+        { name: 'secondary_button_url', type: 'url', label: 'Secondary Button URL' }
       ],
       required: true
     },
     {
-      key: 'featured',
-      name: 'Featured Banner',
+      key: 'about',
+      name: 'About the Shop',
       fields: [
-        { name: 'title', type: 'text', label: 'Banner Title' },
-        { name: 'subtitle', type: 'text', label: 'Banner Subtitle' },
-        { name: 'image', type: 'file', label: 'Banner Image' },
-        { name: 'button_text', type: 'text', label: 'Button Text' },
-        { name: 'button_url', type: 'url', label: 'Button URL' }
+        { name: 'title', type: 'text', label: 'Section Title' },
+        { name: 'description', type: 'textarea', label: 'About Description' },
+        { name: 'image', type: 'file', label: 'About Image' },
+        { name: 'mission', type: 'textarea', label: 'Our Mission' },
+        { name: 'values', type: 'repeater', label: 'Core Values', fields: [
+          { name: 'title', type: 'text', label: 'Value Title' },
+          { name: 'description', type: 'textarea', label: 'Value Description' }
+        ]}
       ],
-      required: false
+      required: true
     },
     {
-      key: 'about',
-      name: 'About',
+      key: 'products',
+      name: 'Products Section',
       fields: [
-        { name: 'description', type: 'textarea', label: 'About Us' },
-        { name: 'year_established', type: 'number', label: 'Year Established' }
+        { name: 'title', type: 'text', label: 'Section Title' },
+        { name: 'description', type: 'textarea', label: 'Section Description' },
+        { name: 'show_featured_only', type: 'checkbox', label: 'Show Featured Products Only' },
+        { name: 'show_category_filter', type: 'checkbox', label: 'Show Category Filter' }
       ],
-      required: false
+      required: true
     },
     {
       key: 'categories',
-      name: 'Product Categories',
+      name: 'Shop by Category',
       fields: [
+        { name: 'title', type: 'text', label: 'Section Title' },
+        { name: 'description', type: 'textarea', label: 'Section Description' },
         {
           name: 'category_list',
           type: 'repeater',
           label: 'Categories',
           fields: [
             { name: 'title', type: 'text', label: 'Category Name' },
+            { name: 'description', type: 'textarea', label: 'Category Description' },
             { name: 'image', type: 'file', label: 'Category Image' },
             { name: 'url', type: 'url', label: 'Category URL' }
           ]
@@ -53,156 +65,11 @@ export const ecommerceTemplate = {
       required: false
     },
     {
-      key: 'products',
-      name: 'Featured Products',
-      fields: [
-        {
-          name: 'product_list',
-          type: 'repeater',
-          label: 'Products',
-          fields: [
-            { name: 'title', type: 'text', label: 'Product Name' },
-            { name: 'description', type: 'textarea', label: 'Description' },
-            { name: 'price', type: 'text', label: 'Price' },
-            { name: 'sale_price', type: 'text', label: 'Sale Price (optional)' },
-            { name: 'image', type: 'file', label: 'Product Image' },
-            { name: 'url', type: 'url', label: 'Product URL' },
-            { name: 'category', type: 'text', label: 'Category' },
-            { name: 'badge', type: 'select', label: 'Badge', options: [
-              { value: 'new', label: 'New' },
-              { value: 'sale', label: 'Sale' },
-              { value: 'bestseller', label: 'Best Seller' },
-              { value: 'limited', label: 'Limited Edition' },
-              { value: 'none', label: 'None' }
-            ]}
-          ]
-        }
-      ],
-      required: false
-    },
-    {
-      key: 'videos',
-      name: 'Product Videos',
-      fields: [
-        {
-          name: 'video_list',
-          type: 'repeater',
-          label: 'Product & Brand Videos',
-          fields: [
-            { name: 'title', type: 'text', label: 'Video Title' },
-            { name: 'description', type: 'textarea', label: 'Video Description' },
-            { name: 'video_type', type: 'select', label: 'Video Type', options: [
-              { value: 'product_demo', label: 'Product Demonstration' },
-              { value: 'unboxing', label: 'Unboxing Experience' },
-              { value: 'how_to_use', label: 'How to Use' },
-              { value: 'customer_review', label: 'Customer Review' },
-              { value: 'brand_story', label: 'Brand Story' },
-              { value: 'behind_scenes', label: 'Behind the Scenes' }
-            ]},
-            { name: 'embed_url', type: 'textarea', label: 'Video Embed URL' },
-            { name: 'thumbnail', type: 'file', label: 'Video Thumbnail' },
-            { name: 'duration', type: 'text', label: 'Duration' },
-            { name: 'product_category', type: 'text', label: 'Product Category' }
-          ]
-        }
-      ],
-      required: false
-    },
-    {
-      key: 'youtube',
-      name: 'YouTube Channel',
-      fields: [
-        { name: 'channel_url', type: 'url', label: 'YouTube Channel URL' },
-        { name: 'channel_name', type: 'text', label: 'Channel Name' },
-        { name: 'subscriber_count', type: 'text', label: 'Subscriber Count' },
-        { name: 'featured_playlist', type: 'url', label: 'Featured Playlist URL' },
-        { name: 'latest_video_embed', type: 'textarea', label: 'Latest Video Embed Code' },
-        { name: 'channel_description', type: 'textarea', label: 'Channel Description' }
-      ],
-      required: false
-    },
-    {
-      key: 'benefits',
-      name: 'Shopping Benefits',
-      fields: [
-        {
-          name: 'benefit_list',
-          type: 'repeater',
-          label: 'Benefits',
-          fields: [
-            { name: 'title', type: 'text', label: 'Benefit Title' },
-            { name: 'description', type: 'textarea', label: 'Description' },
-            { name: 'icon', type: 'select', label: 'Icon', options: [
-              { value: 'shipping', label: 'Free Shipping' },
-              { value: 'returns', label: 'Easy Returns' },
-              { value: 'secure', label: 'Secure Checkout' },
-              { value: 'support', label: 'Customer Support' },
-              { value: 'quality', label: 'Quality Guarantee' },
-              { value: 'discount', label: 'Discounts' }
-            ]}
-          ]
-        }
-      ],
-      required: false
-    },
-    {
-      key: 'contact',
-      name: 'Contact Information',
-      fields: [
-        { name: 'email', type: 'email', label: 'Email Address' },
-        { name: 'phone', type: 'tel', label: 'Phone Number' },
-        { name: 'website', type: 'url', label: 'Website URL' },
-        { name: 'address', type: 'text', label: 'Address (if applicable)' }
-      ],
-      required: true
-    },
-    {
-      key: 'social',
-      name: 'Social Media',
-      fields: [
-        {
-          name: 'social_links',
-          type: 'repeater',
-          label: 'Social Media Links',
-          fields: [
-            { name: 'platform', type: 'select', label: 'Platform', options: socialPlatformsConfig.map(p => ({ value: p.value, label: p.label })) },
-            { name: 'url', type: 'url', label: 'Profile URL' },
-            { name: 'username', type: 'text', label: 'Username/Handle' }
-          ]
-        }
-      ],
-      required: false
-    },
-    {
-      key: 'business_hours',
-      name: 'Customer Service Hours',
-      fields: [
-        {
-          name: 'hours',
-          type: 'repeater',
-          label: 'Hours',
-          fields: [
-            { name: 'day', type: 'select', label: 'Day', options: [
-              { value: 'monday', label: 'Monday' },
-              { value: 'tuesday', label: 'Tuesday' },
-              { value: 'wednesday', label: 'Wednesday' },
-              { value: 'thursday', label: 'Thursday' },
-              { value: 'friday', label: 'Friday' },
-              { value: 'saturday', label: 'Saturday' },
-              { value: 'sunday', label: 'Sunday' }
-            ]},
-            { name: 'open_time', type: 'time', label: 'Opening Time' },
-            { name: 'close_time', type: 'time', label: 'Closing Time' },
-            { name: 'is_closed', type: 'checkbox', label: 'Closed' }
-          ]
-        }
-      ],
-      required: false
-    },
-    {
       key: 'testimonials',
-      name: 'Testimonials',
+      name: 'Customer Testimonials',
       fields: [
+        { name: 'title', type: 'text', label: 'Section Title' },
+        { name: 'description', type: 'textarea', label: 'Section Description' },
         {
           name: 'reviews',
           type: 'repeater',
@@ -211,103 +78,26 @@ export const ecommerceTemplate = {
             { name: 'customer_name', type: 'text', label: 'Customer Name' },
             { name: 'review', type: 'textarea', label: 'Review Text' },
             { name: 'rating', type: 'number', label: 'Rating (1-5)' },
-            { name: 'product_purchased', type: 'text', label: 'Product Purchased' }
+            { name: 'product_purchased', type: 'text', label: 'Product Purchased' },
+            { name: 'customer_image', type: 'file', label: 'Customer Image' }
           ]
         }
       ],
       required: false
     },
     {
-      key: 'newsletter',
-      name: 'Newsletter',
+      key: 'contact',
+      name: 'Contact Us Widget',
       fields: [
-        { name: 'title', type: 'text', label: 'Newsletter Title' },
-        { name: 'description', type: 'textarea', label: 'Newsletter Description' },
-        { name: 'button_text', type: 'text', label: 'Subscribe Button Text' }
+        { name: 'title', type: 'text', label: 'Widget Title' },
+        { name: 'description', type: 'textarea', label: 'Widget Description' },
+        { name: 'email', type: 'email', label: 'Email Address' },
+        { name: 'phone', type: 'tel', label: 'Phone Number' },
+        { name: 'address', type: 'text', label: 'Address' },
+        { name: 'show_map', type: 'checkbox', label: 'Show Map' },
+        { name: 'map_embed', type: 'textarea', label: 'Map Embed Code' }
       ],
-      required: false
-    },
-    {
-      key: 'app_download',
-      name: 'App Download',
-      fields: [
-        { name: 'app_store_url', type: 'url', label: 'App Store URL' },
-        { name: 'play_store_url', type: 'url', label: 'Play Store URL' },
-        { name: 'app_description', type: 'textarea', label: 'App Description' }
-      ],
-      required: false
-    },
-    {
-      key: 'contact_form',
-      name: 'Contact Form',
-      fields: [
-        { name: 'form_title', type: 'text', label: 'Form Title' },
-        { name: 'form_description', type: 'textarea', label: 'Form Description' }
-      ],
-      required: false
-    },
-    {
-      key: 'thank_you',
-      name: 'Thank You Message',
-      fields: [
-        { name: 'message', type: 'textarea', label: 'Thank You Message' }
-      ],
-      required: false
-    },    {
-      key: 'seo',
-      name: 'SEO Settings',
-      fields: [
-        { name: 'meta_title', type: 'text', label: 'Meta Title' },
-        { name: 'meta_description', type: 'textarea', label: 'Meta Description' },
-        { name: 'keywords', type: 'text', label: 'Keywords' },
-        { name: 'og_image', type: 'url', label: 'Open Graph Image URL' }
-      ],
-      required: false
-    },
-    {
-      key: 'pixels',
-      name: 'Pixel & Analytics',
-      fields: [
-        { name: 'google_analytics', type: 'text', label: 'Google Analytics ID' },
-        { name: 'facebook_pixel', type: 'text', label: 'Facebook Pixel ID' },
-        { name: 'gtm_id', type: 'text', label: 'Google Tag Manager ID' },
-        { name: 'custom_head', type: 'textarea', label: 'Custom Head Code' },
-        { name: 'custom_body', type: 'textarea', label: 'Custom Body Code' }
-      ],
-      required: false
-    },
-    {
-      key: 'custom_html',
-      name: 'Custom HTML',
-      fields: [
-        { name: 'html_content', type: 'textarea', label: 'Custom HTML Code' },
-        { name: 'section_title', type: 'text', label: 'Section Title' },
-        { name: 'show_title', type: 'checkbox', label: 'Show Section Title' }
-      ],
-      required: false
-    },
-    {
-      key: 'qr_share',
-      name: 'QR Code Share',
-      fields: [
-        { name: 'enable_qr', type: 'checkbox', label: 'Enable QR Code Sharing' },
-        { name: 'qr_title', type: 'text', label: 'QR Section Title' },
-        { name: 'qr_description', type: 'textarea', label: 'QR Description' },
-        { name: 'qr_size', type: 'select', label: 'QR Code Size', options: [
-          { value: 'small', label: 'Small (128px)' },
-          { value: 'medium', label: 'Medium (200px)' },
-          { value: 'large', label: 'Large (300px)' }
-        ]}
-      ],
-      required: false
-    },
-    {
-      key: 'language',
-      name: 'Language Settings',
-      fields: [
-        { name: 'template_language', type: 'select', label: 'Template Language', options: languageData.map(lang => ({ value: lang.code, label: `${String.fromCodePoint(...lang.countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt()))} ${lang.name}` })) }
-      ],
-      required: false
+      required: true
     },
     {
       key: 'footer',
@@ -315,20 +105,12 @@ export const ecommerceTemplate = {
       fields: [
         { name: 'show_footer', type: 'checkbox', label: 'Show Footer' },
         { name: 'footer_text', type: 'textarea', label: 'Footer Text' },
-        { name: 'footer_links', type: 'repeater', label: 'Footer Links', fields: [
-          { name: 'title', type: 'text', label: 'Link Title' },
-          { name: 'url', type: 'url', label: 'Link URL' }
-        ]}
+        { name: 'copyright_text', type: 'text', label: 'Copyright Text' },
+        { name: 'show_social_links', type: 'checkbox', label: 'Show Social Links' },
+        { name: 'newsletter_title', type: 'text', label: 'Newsletter Title' },
+        { name: 'newsletter_description', type: 'textarea', label: 'Newsletter Description' }
       ],
-      required: false
-    },
-    {
-      key: 'copyright',
-      name: 'Copyright',
-      fields: [
-        { name: 'text', type: 'text', label: 'Copyright Text' }
-      ],
-      required: false
+      required: true
     }
   ],
   colorPresets: [
@@ -370,147 +152,67 @@ export const ecommerceTemplate = {
     spacing: 'comfortable'
   },
   defaultData: {
-    header: {
-      name: 'StyleHub',
-      tagline: 'Quality products for your lifestyle',
-      logo: ''
-    },
-    featured: {
-      title: 'Summer Collection',
-      subtitle: 'Discover our latest arrivals with up to 30% off',
+    hero: {
+      title: 'Welcome to StyleHub',
+      subtitle: 'Discover our curated collection of quality products for your lifestyle',
       image: '',
       button_text: 'Shop Now',
-      button_url: 'https://www.stylehub.com/summer'
+      button_url: '#products',
+      secondary_button_text: 'View Categories',
+      secondary_button_url: '#categories'
     },
     about: {
+      title: 'About Our Shop',
       description: 'StyleHub offers a curated selection of high-quality products for your everyday needs. We focus on sustainable materials, ethical manufacturing, and timeless designs that will last for years to come.',
-      year_established: '2018'
-    },
-    categories: {
-      category_list: [
-        { title: 'Clothing', image: '', url: 'https://www.stylehub.com/clothing' },
-        { title: 'Accessories', image: '', url: 'https://www.stylehub.com/accessories' },
-        { title: 'Home Decor', image: '', url: 'https://www.stylehub.com/home' },
-        { title: 'Beauty', image: '', url: 'https://www.stylehub.com/beauty' }
+      image: '',
+      mission: 'Our mission is to provide exceptional products that enhance your daily life while maintaining our commitment to sustainability and ethical practices.',
+      values: [
+        { title: 'Quality', description: 'We source only the finest materials and work with skilled artisans to ensure every product meets our high standards.' },
+        { title: 'Sustainability', description: 'Our products are designed to last, reducing waste and our environmental impact.' },
+        { title: 'Ethical Practices', description: 'We partner with manufacturers who treat their workers fairly and maintain safe working conditions.' }
       ]
     },
     products: {
-      product_list: [
-        { title: 'Classic White T-Shirt', description: 'Premium cotton t-shirt with a relaxed fit and durable construction.', price: '$29.99', sale_price: '', image: '', url: 'https://www.stylehub.com/products/classic-tee', category: 'Clothing', badge: 'bestseller' },
-        { title: 'Minimalist Watch', description: 'Sleek design with a leather strap and Japanese movement.', price: '$89.99', sale_price: '$69.99', image: '', url: 'https://www.stylehub.com/products/minimalist-watch', category: 'Accessories', badge: 'sale' },
-        { title: 'Ceramic Plant Pot', description: 'Handcrafted ceramic pot perfect for small to medium plants.', price: '$34.99', sale_price: '', image: '', url: 'https://www.stylehub.com/products/ceramic-pot', category: 'Home Decor', badge: 'new' },
-        { title: 'Natural Face Serum', description: 'Hydrating serum with vitamin C and hyaluronic acid.', price: '$45.99', sale_price: '', image: '', url: 'https://www.stylehub.com/products/face-serum', category: 'Beauty', badge: 'none' }
-      ]
+      title: 'Featured Products',
+      description: 'Explore our most popular items, carefully selected for quality and style.',
+      show_featured_only: true,
+      show_category_filter: true
     },
-    benefits: {
-      benefit_list: [
-        { title: 'Free Shipping', description: 'On all orders over $50', icon: 'shipping' },
-        { title: 'Easy Returns', description: '30-day return policy', icon: 'returns' },
-        { title: 'Secure Checkout', description: 'Safe & encrypted payment', icon: 'secure' },
-        { title: '24/7 Support', description: 'We are here to help', icon: 'support' }
-      ]
-    },
-    contact: {
-      email: 'hello@stylehub.com',
-      phone: '(555) 123-4567',
-      website: 'https://www.stylehub.com',
-      address: '123 Fashion Street, Suite 100, New York, NY 10001'
-    },
-    social: {
-      social_links: [
-        { platform: 'instagram', url: 'https://instagram.com/stylehub', username: '@stylehub' },
-        { platform: 'facebook', url: 'https://facebook.com/stylehub', username: 'StyleHub' },
-        { platform: 'pinterest', url: 'https://pinterest.com/stylehub', username: 'stylehub' },
-        { platform: 'youtube', url: 'https://youtube.com/stylehub', username: 'StyleHub' }
-      ]
-    },
-    videos: {
-      video_list: [
-        { title: 'Classic White T-Shirt - Product Showcase', description: 'See the quality and fit of our bestselling classic white t-shirt', video_type: 'product_demo', embed_url: '', thumbnail: '', duration: '2:30', product_category: 'Clothing' },
-        { title: 'Unboxing the StyleHub Experience', description: 'Experience our premium packaging and attention to detail', video_type: 'unboxing', embed_url: '', thumbnail: '', duration: '4:15', product_category: 'General' },
-        { title: 'How to Style Your Minimalist Watch', description: 'Styling tips and outfit ideas for our popular minimalist watch', video_type: 'how_to_use', embed_url: '', thumbnail: '', duration: '6:45', product_category: 'Accessories' }
-      ]
-    },
-    youtube: {
-      channel_url: 'https://youtube.com/stylehub',
-      channel_name: 'StyleHub',
-      subscriber_count: '52.1K',
-      featured_playlist: 'https://youtube.com/playlist?list=PLproductshowcase',
-      latest_video_embed: '',
-      channel_description: 'Product showcases, styling tips, and behind-the-scenes content from your favorite lifestyle brand. Subscribe for weekly style inspiration!'
-    },
-    business_hours: {
-      hours: [
-        { day: 'monday', open_time: '09:00', close_time: '18:00', is_closed: false },
-        { day: 'tuesday', open_time: '09:00', close_time: '18:00', is_closed: false },
-        { day: 'wednesday', open_time: '09:00', close_time: '18:00', is_closed: false },
-        { day: 'thursday', open_time: '09:00', close_time: '18:00', is_closed: false },
-        { day: 'friday', open_time: '09:00', close_time: '18:00', is_closed: false },
-        { day: 'saturday', open_time: '10:00', close_time: '16:00', is_closed: false },
-        { day: 'sunday', open_time: '', close_time: '', is_closed: true }
+    categories: {
+      title: 'Shop by Category',
+      description: 'Find exactly what you need with our organized product categories.',
+      category_list: [
+        { title: 'Clothing', description: 'Premium apparel for men and women', image: '', url: '#clothing' },
+        { title: 'Accessories', description: 'Stylish accessories to complement your look', image: '', url: '#accessories' },
+        { title: 'Home Decor', description: 'Beautiful items to enhance your living space', image: '', url: '#home-decor' },
+        { title: 'Beauty', description: 'Natural and effective skincare and beauty products', image: '', url: '#beauty' }
       ]
     },
     testimonials: {
+      title: 'What Our Customers Say',
+      description: 'Don\'t just take our word for it - hear from our satisfied customers.',
       reviews: [
-        { customer_name: 'Emily R.', review: 'The quality of the clothing is exceptional. I have ordered multiple times and have always been impressed with both the products and customer service.', rating: '5', product_purchased: 'Classic White T-Shirt' },
-        { customer_name: 'Michael T.', review: 'Fast shipping and the minimalist watch exceeded my expectations. Will definitely shop here again!', rating: '5', product_purchased: 'Minimalist Watch' },
-        { customer_name: 'Sarah L.', review: 'Love my new ceramic plant pot. It is exactly as described and looks perfect in my living room.', rating: '4', product_purchased: 'Ceramic Plant Pot' }
+        { customer_name: 'Emily R.', review: 'The quality of the clothing is exceptional. I have ordered multiple times and have always been impressed with both the products and customer service.', rating: 5, product_purchased: 'Classic White T-Shirt', customer_image: '' },
+        { customer_name: 'Michael T.', review: 'Fast shipping and the minimalist watch exceeded my expectations. Will definitely shop here again!', rating: 5, product_purchased: 'Minimalist Watch', customer_image: '' },
+        { customer_name: 'Sarah L.', review: 'Love my new ceramic plant pot. It is exactly as described and looks perfect in my living room.', rating: 4, product_purchased: 'Ceramic Plant Pot', customer_image: '' }
       ]
     },
-    newsletter: {
-      title: 'Join Our Newsletter',
-      description: 'Subscribe to receive updates on new arrivals, special offers, and styling tips.',
-      button_text: 'Subscribe'
-    },
-    app_download: {
-      app_store_url: '#',
-      play_store_url: '#',
-      app_description: 'Download our app for a seamless shopping experience, exclusive mobile offers, and easy order tracking.'
-    },
-    contact_form: {
-      form_title: 'Contact Us',
-      form_description: 'Have questions or need assistance? Fill out the form below and our team will get back to you shortly.'
-    },
-    thank_you: {
-      message: 'Thank you for contacting StyleHub. We appreciate your message and will respond within 24 hours during business days.'
-    },    seo: {
-      meta_title: '',
-      meta_description: '',
-      keywords: '',
-      og_image: ''
-    },    pixels: {
-      google_analytics: '',
-      facebook_pixel: '',
-      gtm_id: '',
-      custom_head: '',
-      custom_body: ''
-    },
-    custom_html: {
-      html_content: '<div class="custom-section"><h4>Special Offers</h4><p>Check out our latest deals and promotions.</p></div>',
-      section_title: 'Special Content',
-      show_title: true
-    },
-    qr_share: {
-      enable_qr: true,
-      qr_title: 'Share Our Store',
-      qr_description: 'Scan this QR code to visit our online store and browse our latest products.',
-      qr_size: 'medium'
-    },
-    language: {
-      template_language: 'en'
+    contact: {
+      title: 'Get in Touch',
+      description: 'Have questions? Our team is here to help.',
+      email: 'hello@stylehub.com',
+      phone: '(555) 123-4567',
+      address: '123 Fashion Street, Suite 100, New York, NY 10001',
+      show_map: false,
+      map_embed: ''
     },
     footer: {
       show_footer: true,
-      footer_text: 'Shop with confidence. Free shipping on orders over $50. Easy returns within 30 days.',
-      footer_links: [
-        { title: 'Shipping Info', url: '#' },
-        { title: 'Return Policy', url: '#' },
-        { title: 'Size Guide', url: '#' },
-        { title: 'Customer Service', url: '#' }
-      ]
-    },
-    copyright: {
-      text: '© 2025 StyleHub. All rights reserved.'
+      footer_text: 'StyleHub - Quality products for your lifestyle. Committed to sustainability and ethical practices.',
+      copyright_text: '© 2025 StyleHub. All rights reserved.',
+      show_social_links: true,
+      newsletter_title: 'Stay Updated',
+      newsletter_description: 'Subscribe to our newsletter for the latest updates and exclusive offers.'
     }
   }
 };

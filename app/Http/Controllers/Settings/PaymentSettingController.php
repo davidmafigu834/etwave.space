@@ -123,6 +123,8 @@ class PaymentSettingController extends Controller
                 'cashfree_public_key' => 'nullable|string',
                 'paynow_merchant_id' => 'nullable|string',
                 'paynow_integration_key' => 'nullable|string',
+                'paynow_mode' => 'nullable|in:test,live',
+                'paynow_test_email' => 'nullable|email',
             ]);
 
             $settings = $this->preparePaymentSettings($request, $validatedData);
@@ -257,6 +259,8 @@ class PaymentSettingController extends Controller
             'cashfree_public_key' => $validatedData['cashfree_public_key'],
             'paynow_merchant_id' => $validatedData['paynow_merchant_id'],
             'paynow_integration_key' => $validatedData['paynow_integration_key'],
+            'paynow_mode' => $validatedData['paynow_mode'] ?? 'test',
+            'paynow_test_email' => $validatedData['paynow_test_email'],
         ];
     }
 
@@ -598,7 +602,7 @@ class PaymentSettingController extends Controller
             'authorizenet_merchant_id', 'cinetpay_site_id', 'easebuzz_merchant_key',
             'ozow_site_key', 'paiement_merchant_id', 'payfastMerchantId',
             'payhere_merchant_id', 'paytr_merchant_id', 'skrill_merchant_id',
-            'yookassa_shop_id', 'paynow_merchant_id',
+            'yookassa_shop_id', 'paynow_merchant_id', 'paynow_mode', 'paynow_test_email',
             
             // Bank details (non-sensitive display info)
             'bank_detail'

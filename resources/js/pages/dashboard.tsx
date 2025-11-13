@@ -14,6 +14,8 @@ import QRCode from 'qrcode';
 import { toast } from 'sonner';
 import { ShareModal } from '@/components/ShareModal';
 import { usePermissions } from '@/components/PermissionGate';
+import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
+import AnnouncementDashboardCard from '@/components/announcements/AnnouncementDashboardCard';
 
 interface CompanyDashboardData {
   stats: {
@@ -57,6 +59,8 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
   const { auth } = usePage().props as any;
   const { hasPermission } = usePermissions();
   const currentBusiness = auth.user?.businesses?.find((b: any) => b.id === auth.user?.current_business) || auth.user?.businesses?.[0];
+  const onboardingProfile = auth.user?.onboardingProfile || auth.user?.onboarding_profile;
+  const isCompanyUser = auth.user?.type === 'company';
 
   const pageActions: PageAction[] = [
     {
@@ -79,6 +83,15 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
     }] : [])
   ];
 
+  if (isCompanyUser) {
+    pageActions.push({
+      label: t('Business Profile'),
+      icon: <Users className="h-4 w-4" />,
+      variant: 'outline',
+      onClick: () => window.dispatchEvent(new CustomEvent('open-onboarding-wizard'))
+    });
+  }
+
   const stats = {
     totalBusinesses: Number(dashboardData?.stats?.totalBusinesses) || 0,
     totalContacts: Number(dashboardData?.stats?.totalContacts) || 0,
@@ -94,15 +107,38 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
   const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
   const [shareUrl, setShareUrl] = React.useState('');
 
-
-
   return (
-    <PageTemplate 
-      title={t('Dashboard')}
-      url="/dashboard"
-      actions={pageActions}
-    >
+    <>
+      <OnboardingWizard />
+      <PageTemplate 
+        title={t('Dashboard')}
+        description={t('Monitor performance, manage engagements, and keep your business profile up to date.')}
+        url="/dashboard"
+        actions={pageActions}
+      >
       <div className="space-y-6 overflow-x-hidden">
+        {isCompanyUser && !onboardingProfile?.completed_at && (
+          <div className="rounded-3xl border border-primary/20 bg-primary/5 px-5 py-4 md:px-6 md:py-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-primary">
+                  {t('Complete your business profile')}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t('We’ll personalise templates, copy, and suggestions for you once we know more about your business.')}
+                </p>
+              </div>
+              <Button
+                variant="default"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-onboarding-wizard'))}
+                className="self-start md:self-auto"
+              >
+                {t('Start onboarding')}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Key Metrics */}
         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
@@ -304,8 +340,9 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
             </Card>
           )}
           
-          {/* Column 2 - QR and Storage */}
+          {/* Column 2 - QR, Announcements, and Storage */}
           <div className="lg:col-span-1 space-y-6 h-full flex flex-col">
+            <AnnouncementDashboardCard />
             {/* QR Code & Share */}
             {currentBusiness && (
               <Card className="flex-1">
@@ -524,7 +561,11 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
             <CardContent className="pt-0 p-3 sm:p-4 lg:p-6">
               <div className="space-y-2 mb-6">
                 {[...recentContacts, ...recentAppointments]
-                  .sort((a, b) => new Date(b.created_at || b.date).getTime() - new Date(a.created_at || a.date).getTime())
+                  .sort((a, b) => {
+                    const aDate = new Date((a as any).created_at ?? (a as any).date ?? 0).getTime();
+                    const bDate = new Date((b as any).created_at ?? (b as any).date ?? 0).getTime();
+                    return bDate - aDate;
+                  })
                   .slice(0, 6)
                   .map((item, index) => (
                   <div key={index} className="group flex items-start gap-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-950/20 dark:hover:to-indigo-950/20 transition-all duration-200 cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-blue-800">
@@ -604,5 +645,7 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
         title={currentBusiness?.name || 'Business'}
       />
     </PageTemplate>
+    </>
   );
+  
 }

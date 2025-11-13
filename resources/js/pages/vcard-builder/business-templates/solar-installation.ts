@@ -69,38 +69,32 @@ export const solarInstallationTemplate = {
       required: false
     },
     {
-      key: 'residential_services',
-      name: 'Residential Solutions',
+      key: 'service_highlights',
+      name: 'Our Services',
       fields: [
+        { name: 'heading', type: 'text', label: 'Section Heading' },
+        { name: 'subheading', type: 'textarea', label: 'Section Subheading' },
         {
-          name: 'solutions',
+          name: 'services',
           type: 'repeater',
-          label: 'Residential Installation Packages',
+          label: 'Services',
           fields: [
-            { name: 'title', type: 'text', label: 'Package Title' },
-            { name: 'description', type: 'textarea', label: 'Description' },
-            { name: 'system_size', type: 'text', label: 'System Size (kW)' },
-            { name: 'estimated_payback', type: 'text', label: 'Estimated Payback Period' },
-            { name: 'image', type: 'file', label: 'Image' }
+            { name: 'icon', type: 'text', label: 'Icon (emoji or short text)' },
+            { name: 'title', type: 'text', label: 'Title' },
+            { name: 'description', type: 'textarea', label: 'Short Description' }
           ]
-        }
+        },
+        { name: 'cta_label', type: 'text', label: 'CTA Label' },
+        { name: 'cta_link', type: 'url', label: 'CTA Link' }
       ],
       required: false
     },
     {
       key: 'gallery',
-      name: 'Installation Gallery',
+      name: 'Project Gallery',
       fields: [
-        {
-          name: 'images',
-          type: 'repeater',
-          label: 'Gallery Images',
-          fields: [
-            { name: 'image', type: 'file', label: 'Image' },
-            { name: 'caption', type: 'text', label: 'Caption' },
-            { name: 'description', type: 'textarea', label: 'Description' }
-          ]
-        }
+        { name: 'heading', type: 'text', label: 'Section Heading' },
+        { name: 'subheading', type: 'textarea', label: 'Section Subheading' }
       ],
       required: false
     },
@@ -113,19 +107,23 @@ export const solarInstallationTemplate = {
       required: false
     },
     {
-      key: 'commercial_services',
-      name: 'Commercial Solutions',
+      key: 'packages',
+      name: 'Our Packages',
       fields: [
+        { name: 'heading', type: 'text', label: 'Section Heading' },
+        { name: 'subheading', type: 'textarea', label: 'Introductory Text' },
         {
-          name: 'solutions',
+          name: 'package_list',
           type: 'repeater',
-          label: 'Commercial Installation Packages',
+          label: 'Packages',
           fields: [
-            { name: 'title', type: 'text', label: 'Package Title' },
-            { name: 'description', type: 'textarea', label: 'Description' },
-            { name: 'system_size', type: 'text', label: 'System Size (kW)' },
-            { name: 'industry_focus', type: 'text', label: 'Industry Focus' },
-            { name: 'image', type: 'file', label: 'Image' }
+            { name: 'name', type: 'text', label: 'Package Name' },
+            { name: 'description', type: 'textarea', label: 'Short Description' },
+            { name: 'price', type: 'text', label: 'Starting Price' },
+            { name: 'timeline', type: 'text', label: 'Typical Timeline' },
+            { name: 'features', type: 'textarea', label: 'Key Features (one per line)' },
+            { name: 'cta_label', type: 'text', label: 'CTA Label' },
+            { name: 'cta_link', type: 'url', label: 'CTA Link' }
           ]
         }
       ],
@@ -174,22 +172,18 @@ export const solarInstallationTemplate = {
       required: false
     },
     {
-      key: 'portfolio',
-      name: 'Featured Installations',
+      key: 'featured_projects',
+      name: 'Featured Projects',
       fields: [
         {
-          name: 'projects',
-          type: 'repeater',
-          label: 'Project Case Studies',
-          fields: [
-            { name: 'title', type: 'text', label: 'Project Title' },
-            { name: 'location', type: 'text', label: 'Location' },
-            { name: 'system_size', type: 'text', label: 'System Size (kW)' },
-            { name: 'year_completed', type: 'text', label: 'Year Completed' },
-            { name: 'production', type: 'text', label: 'Annual Production' },
-            { name: 'image', type: 'file', label: 'Image' },
-            { name: 'summary', type: 'textarea', label: 'Project Summary' }
-          ]
+          name: 'heading',
+          type: 'text', 
+          label: 'Section Heading'
+        },
+        {
+          name: 'subheading',
+          type: 'textarea',
+          label: 'Section Subheading'
         }
       ],
       required: false
@@ -236,38 +230,14 @@ export const solarInstallationTemplate = {
       required: false
     },
     {
-      key: 'calculator',
-      name: 'Solar Savings Calculator',
+      key: 'contact_form',
+      name: 'Lead Form',
       fields: [
-        { name: 'cta_title', type: 'text', label: 'Calculator Title' },
-        { name: 'cta_description', type: 'textarea', label: 'Calculator Description' },
-        { name: 'monthly_bill_label', type: 'text', label: 'Monthly Bill Field Label' },
-        { name: 'zip_label', type: 'text', label: 'ZIP / Area Field Label' },
-        { name: 'sun_hours_label', type: 'text', label: 'Sun Hours Field Label' },
-        { name: 'submit_label', type: 'text', label: 'Submit Button Label' }
+        { name: 'form_title', type: 'text', label: 'Form Title' },
+        { name: 'form_description', type: 'textarea', label: 'Description' },
+        { name: 'success_message', type: 'textarea', label: 'Success Message' }
       ],
-      required: false
-    },
-    {
-      key: 'appointments',
-      name: 'Consultation Booking',
-      fields: [
-        { name: 'kicker', type: 'text', label: 'Section Kicker' },
-        { name: 'cta_title', type: 'text', label: 'CTA Title' },
-        { name: 'booking_url', type: 'url', label: 'Booking URL' },
-        { name: 'cta_text', type: 'text', label: 'CTA Text' },
-        { name: 'button_label', type: 'text', label: 'Button Label' },
-        {
-          name: 'highlights',
-          type: 'repeater',
-          label: 'Highlights / Bullet Points',
-          fields: [
-            { name: 'label', type: 'text', label: 'Highlight Text' }
-          ]
-        },
-        { name: 'note', type: 'textarea', label: 'Scheduling Notes' }
-      ],
-      required: false
+      required: true
     },
     {
       key: 'contact',
@@ -448,16 +418,40 @@ export const solarInstallationTemplate = {
         { title: 'Performance Guarantee', description: 'Production monitoring and performance guarantees for peace of mind.' }
       ]
     },
-    residential_services: {
-      solutions: [
-        { title: 'SunGuard Home Package', description: 'Ideal for single-family homes with average energy usage.', system_size: '6.5 kW', estimated_payback: '5-7 years', image: '' },
-        { title: 'Solar + Storage Elite', description: 'Pair high-efficiency panels with a 13.5 kWh battery for backup power.', system_size: '8.2 kW', estimated_payback: '7-8 years', image: '' }
-      ]
+    service_highlights: {
+      heading: 'Our Solar Services',
+      subheading: 'Comprehensive solar solutions tailored to your energy needs.',
+      services: [
+        { icon: '☀️', title: 'Residential Solar', description: 'Custom solar installations for homes with battery backup options.' },
+        { icon: '🏢', title: 'Commercial Solar', description: 'Scalable solar solutions for businesses to reduce operating costs.' },
+        { icon: '🔋', title: 'Energy Storage', description: 'Battery systems for backup power and energy independence.' },
+        { icon: '🔧', title: 'Maintenance & Monitoring', description: 'Ongoing system care and performance optimization.' }
+      ],
+      cta_label: 'Learn More',
+      cta_link: '#services'
     },
-    commercial_services: {
-      solutions: [
-        { title: 'Retail Rooftop', description: 'Boost NOI and attract eco-conscious customers.', system_size: '45 kW', industry_focus: 'Retail & Shopping Centers', image: '' },
-        { title: 'Warehouse Microgrid', description: 'Stabilize energy costs and add resiliency with solar + storage.', system_size: '120 kW', industry_focus: 'Industrial & Logistics', image: '' }
+    packages: {
+      heading: 'Solar Packages',
+      subheading: 'Flexible solar solutions designed for every need and budget.',
+      package_list: [
+        {
+          name: 'Starter Package',
+          description: 'Perfect for small homes and first-time solar adopters.',
+          price: 'From $8,500',
+          timeline: '4-6 weeks',
+          features: '6 kW Solar System\nStandard Inverter\n1-Year Monitoring',
+          cta_label: 'Get Quote',
+          cta_link: 'https://calendly.com/solar-assessment'
+        },
+        {
+          name: 'Premium Package',
+          description: 'For larger homes with battery backup and smart home integration.',
+          price: 'From $25,000',
+          timeline: '8-12 weeks',
+          features: '10 kW Solar System\nPremium Inverter\nBattery Storage\nSmart Home Integration\n24/7 Monitoring',
+          cta_label: 'Book Consultation',
+          cta_link: 'https://calendly.com/solar-assessment-premium'
+        }
       ]
     },
     financing: {
@@ -470,18 +464,13 @@ export const solarInstallationTemplate = {
         { title: 'Net Energy Metering 3.0', type: 'state', amount: 'Export credits for excess production', requirements: 'Utility interconnection approval', expires_on: 'Subject to utility policy' }
       ]
     },
-    portfolio: {
-      projects: [
-        { title: 'Sunset Estates Residence', location: 'Anaheim, CA', system_size: '7.8 kW', year_completed: '2024', production: '11,200 kWh/year', image: '', summary: 'Roof-mounted solar with battery storage to power the home during outages.' },
-        { title: 'GreenMart Superstore', location: 'Riverside, CA', system_size: '96 kW', year_completed: '2023', production: '148,000 kWh/year', image: '', summary: 'Offset 72% of annual energy usage and added EV charging stations.' }
-      ]
+    featured_projects: {
+      heading: 'Our Featured Projects',
+      subheading: 'Explore our successful solar installations and energy projects that showcase our expertise and commitment to quality.',
     },
     gallery: {
-      images: [
-        { image: '', caption: 'Residential rooftop array', description: 'High-efficiency panels optimized for afternoon sun exposure.' },
-        { image: '', caption: 'Commercial carport installation', description: 'Shade structures provide parking comfort while generating power.' },
-        { image: '', caption: 'Battery backup system', description: 'Seamless integration with Powerwall storage for outage protection.' }
-      ]
+      heading: 'Project Gallery',
+      subheading: 'Showcase recent solar installations and system upgrades to build trust with new clients.'
     },
     testimonials: {
       reviews: [
@@ -495,19 +484,10 @@ export const solarInstallationTemplate = {
         { question: 'Do I still receive a utility bill?', answer: 'Yes, but it will typically only include any net usage beyond what your system generates.', category: 'financing' }
       ]
     },
-    calculator: {
-      cta_title: 'Estimate Your Solar Savings',
-      cta_description: 'Enter a few details to see how much you could save with a custom solar system.',
-      monthly_bill_label: 'Average Monthly Bill ($)',
-      zip_label: 'ZIP Code',
-      sun_hours_label: 'Average Sun Hours per Day',
-      submit_label: 'Calculate Savings'
-    },
-    appointments: {
-      booking_url: 'https://calendly.com/brightpath-solar/site-assessment',
-      cta_text: 'Schedule a site assessment to receive a custom proposal in 48 hours.',
-      button_label: 'Book a Consultation',
-      note: 'Virtual or on-site visits available. Evening appointments by request.'
+    contact_form: {
+      form_title: 'Get a Free Solar Quote',
+      form_description: 'Fill out this form and our solar experts will contact you with a customized quote.',
+      success_message: 'Thank you! We\'ll contact you within 24 hours to discuss your solar project.'
     },
     contact: {
       email: 'hello@brightpathsolar.com',

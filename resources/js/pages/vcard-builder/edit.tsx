@@ -18,8 +18,17 @@ interface Props {
   userPlan?: any;
   userRole?: string;
   planFeatures?: any;
+  onboardingProfile?: any;
 }
 
-export default function VCardBuilderEdit({ business, userPlan, userRole, planFeatures }: Props) {
-  return <VCardBuilderForm business={business} userPlan={userPlan} userRole={userRole} planFeatures={planFeatures} />;
+export default function VCardBuilderEdit({ business, userPlan, userRole, planFeatures, onboardingProfile }: Props) {
+  return (
+    <VCardBuilderForm
+      business={business}
+      userPlan={userPlan}
+      userRole={userRole}
+      planFeatures={planFeatures}
+      onboardingProfile={onboardingProfile}
+    />
+  );
 }
