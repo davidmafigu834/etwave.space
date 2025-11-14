@@ -38,63 +38,85 @@ export const solarInstallationTemplate = {
     },
     {
       key: 'metrics',
-      name: 'Impact Metrics',
+      name: 'Quick Benefits Snapshot',
       fields: [
         { name: 'section_heading', type: 'text', label: 'Section Heading' },
         { name: 'section_description', type: 'textarea', label: 'Section Description' },
-        { name: 'total_kw_installed_label', type: 'text', label: 'Metric 1 Heading' },
-        { name: 'total_kw_installed', type: 'text', label: 'Metric 1 Value' },
-        { name: 'homes_powered_label', type: 'text', label: 'Metric 2 Heading' },
-        { name: 'homes_powered', type: 'text', label: 'Metric 2 Value' },
-        { name: 'co2_offset_label', type: 'text', label: 'Metric 3 Heading' },
-        { name: 'co2_offset', type: 'text', label: 'Metric 3 Value' },
-        { name: 'trees_saved_label', type: 'text', label: 'Metric 4 Heading' },
-        { name: 'trees_saved', type: 'text', label: 'Metric 4 Value' }
+        { name: 'total_kw_installed_label', type: 'text', label: 'Benefit 1 Heading' },
+        { name: 'total_kw_installed', type: 'text', label: 'Benefit 1 Description' },
+        { name: 'homes_powered_label', type: 'text', label: 'Benefit 2 Heading' },
+        { name: 'homes_powered', type: 'text', label: 'Benefit 2 Description' },
+        { name: 'co2_offset_label', type: 'text', label: 'Benefit 3 Heading' },
+        { name: 'co2_offset', type: 'text', label: 'Benefit 3 Description' },
+        { name: 'trees_saved_label', type: 'text', label: 'Benefit 4 Heading' },
+        { name: 'trees_saved', type: 'text', label: 'Benefit 4 Description' }
       ],
       required: false
     },
     {
-      key: 'about',
-      name: 'About Company',
-      fields: [
-        { name: 'mission_statement', type: 'textarea', label: 'Mission Statement' },
-        { name: 'experience_years', type: 'number', label: 'Years in Business' },
-        { name: 'license_numbers', type: 'text', label: 'License Numbers' },
-        { name: 'service_regions', type: 'text', label: 'Service Regions' },
-        { name: 'value_props', type: 'repeater', label: 'Key Value Propositions', fields: [
-          { name: 'title', type: 'text', label: 'Title' },
-          { name: 'description', type: 'textarea', label: 'Description' }
-        ]}
-      ],
-      required: false
-    },
-    {
-      key: 'service_highlights',
-      name: 'Our Services',
+      key: 'how_it_works',
+      name: 'How It Works',
       fields: [
         { name: 'heading', type: 'text', label: 'Section Heading' },
         { name: 'subheading', type: 'textarea', label: 'Section Subheading' },
         {
-          name: 'services',
+          name: 'steps',
           type: 'repeater',
-          label: 'Services',
+          label: 'Process Steps',
           fields: [
-            { name: 'icon', type: 'text', label: 'Icon (emoji or short text)' },
-            { name: 'title', type: 'text', label: 'Title' },
-            { name: 'description', type: 'textarea', label: 'Short Description' }
+            { name: 'title', type: 'text', label: 'Step Title' },
+            { name: 'description', type: 'textarea', label: 'Step Description' }
           ]
         },
-        { name: 'cta_label', type: 'text', label: 'CTA Label' },
-        { name: 'cta_link', type: 'url', label: 'CTA Link' }
+        { name: 'cta_label', type: 'text', label: 'Button Label' }
       ],
       required: false
     },
     {
-      key: 'gallery',
-      name: 'Project Gallery',
+      key: 'why_us',
+      name: 'Why Choose Us',
       fields: [
         { name: 'heading', type: 'text', label: 'Section Heading' },
-        { name: 'subheading', type: 'textarea', label: 'Section Subheading' }
+        { name: 'subheading', type: 'textarea', label: 'Section Subheading' },
+        {
+          name: 'reasons',
+          type: 'repeater',
+          label: 'Reasons',
+          fields: [
+            { name: 'title', type: 'text', label: 'Reason Title' },
+            { name: 'description', type: 'textarea', label: 'Reason Description' }
+          ]
+        }
+      ],
+      required: false
+    },
+    {
+      key: 'savings_calculator',
+      name: 'Savings Calculator',
+      fields: [
+        { name: 'heading', type: 'text', label: 'Section Heading' },
+        { name: 'description', type: 'textarea', label: 'Short Description' },
+        { name: 'bill_label', type: 'text', label: 'Current Bill Label' },
+        { name: 'savings_label', type: 'text', label: 'Estimated Savings Label' },
+        { name: 'cta_label', type: 'text', label: 'Calculator Button Label' },
+        { name: 'name_label', type: 'text', label: 'Name Field Label' },
+        { name: 'phone_label', type: 'text', label: 'Phone Field Label' },
+        { name: 'location_label', type: 'text', label: 'Location Field Label' },
+        { name: 'success_message', type: 'textarea', label: 'Success Message' }
+      ],
+      required: false
+    },
+    {
+      key: 'final_cta',
+      name: 'Final Call to Action',
+      fields: [
+        { name: 'headline', type: 'text', label: 'Headline' },
+        { name: 'subheadline', type: 'textarea', label: 'Subheadline' },
+        { name: 'primary_cta_label', type: 'text', label: 'Primary Button Label' },
+        { name: 'secondary_cta_label', type: 'text', label: 'Secondary Button Label' },
+        { name: 'whatsapp_button_label', type: 'text', label: 'WhatsApp Button Label' },
+        { name: 'phone_label', type: 'text', label: 'Phone Label' },
+        { name: 'email_label', type: 'text', label: 'Email Label' }
       ],
       required: false
     },
@@ -113,60 +135,10 @@ export const solarInstallationTemplate = {
         { name: 'heading', type: 'text', label: 'Section Heading' },
         { name: 'subheading', type: 'textarea', label: 'Introductory Text' },
         {
-          name: 'package_list',
-          type: 'repeater',
-          label: 'Packages',
-          fields: [
-            { name: 'name', type: 'text', label: 'Package Name' },
-            { name: 'description', type: 'textarea', label: 'Short Description' },
-            { name: 'price', type: 'text', label: 'Starting Price' },
-            { name: 'timeline', type: 'text', label: 'Typical Timeline' },
-            { name: 'features', type: 'textarea', label: 'Key Features (one per line)' },
-            { name: 'cta_label', type: 'text', label: 'CTA Label' },
-            { name: 'cta_link', type: 'url', label: 'CTA Link' }
-          ]
-        }
-      ],
-      required: false
-    },
-    {
-      key: 'financing',
-      name: 'Financing & Incentives',
-      fields: [
-        {
-          name: 'options',
-          type: 'repeater',
-          label: 'Financing Options',
-          fields: [
-            { name: 'name', type: 'text', label: 'Option Name' },
-            { name: 'type', type: 'select', label: 'Option Type', options: [
-              { value: 'loan', label: 'Loan' },
-              { value: 'lease', label: 'Lease' },
-              { value: 'ppa', label: 'Power Purchase Agreement (PPA)' },
-              { value: 'cash', label: 'Cash Purchase' }
-            ]},
-            { name: 'interest_rate', type: 'text', label: 'Interest Rate / Terms' },
-            { name: 'down_payment', type: 'text', label: 'Down Payment' },
-            { name: 'cta_label', type: 'text', label: 'CTA Label' },
-            { name: 'cta_url', type: 'url', label: 'CTA URL' }
-          ]
-        },
-        {
-          name: 'incentives',
-          type: 'repeater',
-          label: 'Available Incentives',
-          fields: [
-            { name: 'title', type: 'text', label: 'Incentive Title' },
-            { name: 'type', type: 'select', label: 'Incentive Type', options: [
-              { value: 'federal', label: 'Federal' },
-              { value: 'state', label: 'State' },
-              { value: 'local', label: 'Local/Utility' },
-              { value: 'tax_credit', label: 'Tax Credit' }
-            ]},
-            { name: 'amount', type: 'text', label: 'Savings Amount or Percentage' },
-            { name: 'requirements', type: 'textarea', label: 'Eligibility Requirements' },
-            { name: 'expires_on', type: 'text', label: 'Expiration / Deadline' }
-          ]
+          name: 'note',
+          type: 'textarea',
+          label: 'Configuration Note',
+          helpText: 'Packages shown on this section are loaded from your Packages page. Configure them there. This section only controls the heading and intro text.'
         }
       ],
       required: false
@@ -184,6 +156,12 @@ export const solarInstallationTemplate = {
           name: 'subheading',
           type: 'textarea',
           label: 'Section Subheading'
+        },
+        {
+          name: 'note',
+          type: 'textarea',
+          label: 'Configuration Note',
+          helpText: 'Projects shown in this section come from your Featured Projects page. Manage them there. This section only controls the heading and description.'
         }
       ],
       required: false
@@ -201,7 +179,10 @@ export const solarInstallationTemplate = {
             { name: 'location', type: 'text', label: 'Location' },
             { name: 'system_type', type: 'text', label: 'System Type' },
             { name: 'quote', type: 'textarea', label: 'Quote' },
-            { name: 'rating', type: 'number', label: 'Rating (1-5)' }
+            { name: 'rating', type: 'number', label: 'Rating (1-5)' },
+            { name: 'photo', type: 'file', label: 'Customer Photo' },
+            { name: 'before_image', type: 'file', label: 'Before Installation Image' },
+            { name: 'after_image', type: 'file', label: 'After Installation Image' }
           ]
         }
       ],
@@ -243,13 +224,16 @@ export const solarInstallationTemplate = {
       key: 'contact',
       name: 'Contact Information',
       fields: [
-        { name: 'email', type: 'email', label: 'Email Address' },
-        { name: 'phone', type: 'tel', label: 'Phone Number' },
-        { name: 'website', type: 'url', label: 'Website URL' },
-        { name: 'office_address', type: 'text', label: 'Office Address' },
-        { name: 'service_hours', type: 'text', label: 'Service Hours Summary' }
+        { name: 'heading', type: 'text', label: 'Section Heading' },
+        { name: 'subheading', type: 'textarea', label: 'Section Subheading' },
+        {
+          name: 'note',
+          type: 'textarea',
+          label: 'Configuration Note',
+          helpText: 'Contact details (phone, email, address) are loaded from your saved profile/onboarding. Update them from your profile or onboarding settings. This section only controls the heading and helper text.'
+        }
       ],
-      required: true
+      required: false
     },
     {
       key: 'social',
@@ -370,17 +354,17 @@ export const solarInstallationTemplate = {
   defaultData: {
     header: {
       company_name: 'BrightPath Solar',
-      headline: 'Power Your Future with Clean Energy',
-      subheadline: 'Custom residential and commercial solar solutions that lower your bills and reduce your carbon footprint.',
+      headline: 'Cut Your Power Costs With Reliable Solar Energy',
+      subheadline: 'Custom solar systems designed for homes & businesses.',
       profile_image: '',
       hero_background: '',
       hero_overlay_opacity: 0.45,
-      cta_button: { label: 'Request a Free Assessment', url: '#appointments' },
-      secondary_cta: { label: 'See Recent Projects', url: '#portfolio' },
+      cta_button: { label: 'Get a Free Quote', url: '#contact-form' },
+      secondary_cta: { label: 'Book Your Assessment', url: '#appointments' },
       badges: [
-        { label: 'NABCEP Certified', icon: '🔆' },
-        { label: '25-Year Warranty', icon: '🛡️' },
-        { label: 'Tesla Powerwall Partner', icon: '⚡' }
+        { label: 'Save up to 60% on power', icon: '💡' },
+        { label: 'Up to 25-Year Warranty', icon: '🛡️' },
+        { label: 'Certified Solar Installers', icon: '✅' }
       ],
       whatsapp_phone_number: '+1234567890',
       whatsapp_cta_text: 'Chat with our energy consultants instantly.',
@@ -396,16 +380,65 @@ export const solarInstallationTemplate = {
       }
     },
     metrics: {
-      section_heading: 'Impact at a Glance',
-      section_description: 'Key performance metrics that demonstrate our solar installations delivering reliable, sustainable energy.',
-      total_kw_installed_label: 'Solar Systems Installed',
-      total_kw_installed: '320 off-grid & hybrid systems delivered',
-      homes_powered_label: 'Households Powered Daily',
-      homes_powered: 'Over 180 households powered daily',
-      co2_offset_label: 'Hours Of Backup During Outages',
-      co2_offset: '1,400+ backup hours provided each month',
-      trees_saved_label: 'Community & Farm Installs',
-      trees_saved: '35 irrigation & cold-room installs across Mashonaland'
+      section_heading: 'Why Switch to Solar Now?',
+      section_description: 'See the key benefits you get before you even scroll too far.',
+      total_kw_installed_label: 'Save on Electricity Bills',
+      total_kw_installed: 'Cut your monthly power costs by up to 60% with a properly sized system.',
+      homes_powered_label: 'Guaranteed Installation Timeline',
+      homes_powered: 'From site assessment to switch-on, we keep your project on a clear schedule.',
+      co2_offset_label: 'Long-Term Warranties',
+      co2_offset: 'Panels and inverters backed by strong manufacturer and installer warranties.',
+      trees_saved_label: 'Free Site Assessment',
+      trees_saved: 'We evaluate your roof, usage and budget before recommending any solution.'
+    },
+    how_it_works: {
+      heading: 'How It Works',
+      subheading: 'We keep the process simple, transparent, and focused on your savings.',
+      steps: [
+        {
+          title: '1. Schedule Your Assessment',
+          description: 'Book a free on-site or virtual assessment so we can understand your roof, usage, and goals.'
+        },
+        {
+          title: '2. Get a Custom Solar Proposal',
+          description: 'We design a tailored solar system with projected savings, equipment list, and installation timeline.'
+        },
+        {
+          title: '3. Professional Installation',
+          description: 'Our certified solar team handles installation, wiring, permits, and inspections from start to finish.'
+        },
+        {
+          title: '4. Enjoy Lower Power Bills',
+          description: 'Once switched on, you start generating clean power and see the difference on your monthly bill.'
+        }
+      ],
+      cta_label: 'Book Your Assessment'
+    },
+    why_us: {
+      heading: 'Why Choose Us',
+      subheading: 'Trust a solar partner that focuses on long-term performance, not just panels.',
+      reasons: [
+        {
+          title: 'Certified & Experienced Installers',
+          description: 'Your system is installed and commissioned by certified professionals with years of hands-on experience.'
+        },
+        {
+          title: 'Only High-Grade Panels & Inverters',
+          description: 'We carefully select Tier-1 modules and reputable inverters built for reliability and output.'
+        },
+        {
+          title: 'Fast Installation Guarantee',
+          description: 'Once your design is approved, we commit to a clear and realistic installation timeline.'
+        },
+        {
+          title: 'Local Support & Maintenance',
+          description: 'Our team is local, reachable, and available for maintenance, inspections, and system checks.'
+        },
+        {
+          title: '100+ Successful Installations',
+          description: 'Residential, commercial, and agricultural clients already rely on our systems every day.'
+        }
+      ]
     },
     about: {
       mission_statement: 'BrightPath Solar designs, installs, and maintains high-efficiency solar systems tailored to each property. Our licensed professionals handle everything from permitting and incentives to ongoing monitoring.',
@@ -432,41 +465,13 @@ export const solarInstallationTemplate = {
     },
     packages: {
       heading: 'Solar Packages',
-      subheading: 'Flexible solar solutions designed for every need and budget.',
-      package_list: [
-        {
-          name: 'Starter Package',
-          description: 'Perfect for small homes and first-time solar adopters.',
-          price: 'From $8,500',
-          timeline: '4-6 weeks',
-          features: '6 kW Solar System\nStandard Inverter\n1-Year Monitoring',
-          cta_label: 'Get Quote',
-          cta_link: 'https://calendly.com/solar-assessment'
-        },
-        {
-          name: 'Premium Package',
-          description: 'For larger homes with battery backup and smart home integration.',
-          price: 'From $25,000',
-          timeline: '8-12 weeks',
-          features: '10 kW Solar System\nPremium Inverter\nBattery Storage\nSmart Home Integration\n24/7 Monitoring',
-          cta_label: 'Book Consultation',
-          cta_link: 'https://calendly.com/solar-assessment-premium'
-        }
-      ]
-    },
-    financing: {
-      options: [
-        { name: 'Solar Advantage Loan', type: 'loan', interest_rate: '3.49% APR up to 15 years', down_payment: 'As low as 0%', cta_label: 'Pre-Qualify', cta_url: '#' },
-        { name: 'Commercial PPA', type: 'ppa', interest_rate: 'Locked-in kWh rate below utility prices', down_payment: 'No upfront cost', cta_label: 'Request Proposal', cta_url: '#' }
-      ],
-      incentives: [
-        { title: 'Federal Investment Tax Credit (ITC)', type: 'federal', amount: '30% credit on system cost', requirements: 'Must own the system', expires_on: '2032' },
-        { title: 'Net Energy Metering 3.0', type: 'state', amount: 'Export credits for excess production', requirements: 'Utility interconnection approval', expires_on: 'Subject to utility policy' }
-      ]
+      subheading: 'Three clear options to help you quickly choose the right system for your home or business.',
+      note: 'Package cards on your vCard are loaded from your Packages page. Use that page to create packages such as Home Solar Starter, Home Backup + Solar System, and Full Commercial Solar Setup with kW size, ideal usage, inclusions, and monthly savings estimates.'
     },
     featured_projects: {
       heading: 'Our Featured Projects',
-      subheading: 'Explore our successful solar installations and energy projects that showcase our expertise and commitment to quality.',
+      subheading: 'Explore real solar installations we have completed for homes, businesses, and farms.',
+      note: 'Featured projects on your vCard are loaded from your Featured Projects page. Use that page to manage project cards. This section only controls the heading and description.'
     },
     gallery: {
       heading: 'Project Gallery',
@@ -474,15 +479,76 @@ export const solarInstallationTemplate = {
     },
     testimonials: {
       reviews: [
-        { client_name: 'Maria Alvarez', location: 'San Diego, CA', system_type: 'Residential 8 kW + Battery', quote: 'BrightPath handled everything and our bill dropped from $240 to $32 per month.', rating: 5 },
-        { client_name: 'Harbor Logistics', location: 'Long Beach, CA', system_type: 'Commercial 110 kW', quote: 'Professional crew, on-time delivery, and the monitoring dashboard is outstanding.', rating: 5 }
+        {
+          client_name: 'Maria Alvarez',
+          location: 'San Diego, CA',
+          system_type: 'Residential 8 kW + Battery',
+          quote: 'The team handled everything from assessment to installation. Our bill dropped from $240 to about $35 per month.',
+          rating: 5,
+          photo: '',
+          before_image: '',
+          after_image: ''
+        },
+        {
+          client_name: 'Harbor Logistics',
+          location: 'Long Beach, CA',
+          system_type: 'Commercial 110 kW Rooftop System',
+          quote: 'Professional crew, on-time delivery, and the monitoring dashboard makes it easy to track savings.',
+          rating: 5,
+          photo: '',
+          before_image: '',
+          after_image: ''
+        }
       ]
     },
     faq: {
       items: [
-        { question: 'How long does installation take?', answer: 'Most residential projects are completed within 4-6 weeks from contract to activation.', category: 'installation' },
-        { question: 'Do I still receive a utility bill?', answer: 'Yes, but it will typically only include any net usage beyond what your system generates.', category: 'financing' }
+        {
+          question: 'How much does solar cost?',
+          answer: 'The cost depends on your roof size, usage, and system type. Most homeowners recover the investment within 3–7 years through lower electricity bills.',
+          category: 'financing'
+        },
+        {
+          question: 'Do you offer payment plans?',
+          answer: 'Yes. We work with financing partners so you can spread the cost over time, often with low or no upfront payment.',
+          category: 'financing'
+        },
+        {
+          question: 'How long does installation take?',
+          answer: 'Once approvals are in place, a typical residential installation takes 1–3 days on-site, plus a short waiting period for inspection and grid connection.',
+          category: 'installation'
+        },
+        {
+          question: 'What warranties do you offer?',
+          answer: 'Most systems include panel warranties up to 25 years and inverter warranties from 5–15 years, plus our own workmanship warranty.',
+          category: 'maintenance'
+        },
+        {
+          question: 'Can I go completely off-grid?',
+          answer: 'In many cases yes, but it requires careful design and adequate battery storage. We can design both grid-tied and off-grid systems depending on your needs.',
+          category: 'installation'
+        }
       ]
+    },
+    savings_calculator: {
+      heading: 'See How Much You Can Save',
+      description: 'Enter your current monthly electricity spend and we’ll estimate your potential solar savings.',
+      bill_label: 'Your Current Monthly Bill',
+      savings_label: 'Estimated Monthly Savings',
+      cta_label: 'Calculate My Savings',
+      name_label: 'Full Name',
+      phone_label: 'Phone Number',
+      location_label: 'Location / Area',
+      success_message: 'Thank you! We’ve received your details. A solar consultant will contact you shortly with a personalized savings estimate.'
+    },
+    final_cta: {
+      headline: 'Ready to Start Saving on Power?',
+      subheadline: 'Take the next step toward reliable, affordable solar energy for your home or business.',
+      primary_cta_label: 'Get a Free Quote',
+      secondary_cta_label: 'Book Consultation',
+      whatsapp_button_label: 'Chat on WhatsApp',
+      phone_label: 'Call Us',
+      email_label: 'Email Us'
     },
     contact_form: {
       form_title: 'Get a Free Solar Quote',
@@ -490,11 +556,9 @@ export const solarInstallationTemplate = {
       success_message: 'Thank you! We\'ll contact you within 24 hours to discuss your solar project.'
     },
     contact: {
-      email: 'hello@brightpathsolar.com',
-      phone: '(555) 987-6543',
-      website: 'https://brightpathsolar.com',
-      office_address: '2450 Solar Way, Irvine, CA 92614',
-      service_hours: 'Mon-Fri 8am-6pm | Sat 9am-3pm'
+      heading: 'Need to Talk to a Solar Expert?',
+      subheading: 'Your phone, email, and address are pulled automatically from your saved profile details.',
+      note: 'Update your contact information from your profile/onboarding settings. This section only manages the heading and helper text displayed above your contact details.'
     },
     social: {
       social_links: [

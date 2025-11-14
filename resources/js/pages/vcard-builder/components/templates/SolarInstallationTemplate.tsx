@@ -1,4 +1,5 @@
 import React from 'react';
+import { handleAppointmentBooking } from '../VCardPreview';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -213,37 +214,28 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
     }
   ].filter((card) => card.value);
 
-  const about = isSectionActive('about')
-    ? (configSections.about !== undefined
-        ? (configSections.about ?? {})
-        : template?.defaultData?.about || {})
+  const howItWorks = isSectionActive('how_it_works')
+    ? (configSections.how_it_works !== undefined
+        ? (configSections.how_it_works ?? {})
+        : template?.defaultData?.how_it_works || {})
     : {};
 
-  const serviceHighlightsSection = (catalogSections.service_highlights ?? configSections.service_highlights) || {};
+  const whyUs = isSectionActive('why_us')
+    ? (configSections.why_us !== undefined
+        ? (configSections.why_us ?? {})
+        : template?.defaultData?.why_us || {})
+    : {};
+
   const packagesSection = (catalogSections.packages ?? configSections.packages) || {};
-
-  const serviceHighlights = isSectionActive('service_highlights')
-    ? serviceHighlightsSection
-    : {};
 
   const packages = isSectionActive('packages')
     ? packagesSection
-    : {};
-
-  const financing = isSectionActive('financing')
-    ? (configSections.financing !== undefined
-        ? (configSections.financing ?? {})
-        : template?.defaultData?.financing || {})
     : {};
 
   const featuredProjectsSection = (catalogSections.featured_projects ?? configSections.featured_projects) || {};
   const featuredProjects = isSectionActive('featured_projects')
     ? featuredProjectsSection
     : {};
-
-  const galleryActive = isSectionActive('gallery');
-  const gallerySection = (catalogSections.gallery ?? configSections.gallery) || {};
-  const galleryData = galleryActive ? gallerySection : {};
 
   const testimonials = isSectionActive('testimonials')
     ? (configSections.testimonials && 'reviews' in (configSections.testimonials ?? {})
@@ -263,23 +255,19 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
         : template?.defaultData?.contact_form || {})
     : {};
 
-  const appointments = isSectionActive('appointments')
-    ? (configSections.appointments !== undefined
-        ? (configSections.appointments ?? {})
-        : template?.defaultData?.appointments || {})
-    : {};
-
   const contactSection = contact;
 
-  const appointmentHighlights = Array.isArray(appointments.highlights)
-    ? appointments.highlights
-    : Array.isArray(appointments.benefits)
-      ? appointments.benefits
-      : [];
+  const savingsCalculator = isSectionActive('savings_calculator')
+    ? (configSections.savings_calculator !== undefined
+        ? (configSections.savings_calculator ?? {})
+        : template?.defaultData?.savings_calculator || {})
+    : {};
 
-  const bookingBackground = colors.cardBg && colors.cardBg !== '#FFFFFF'
-    ? colors.cardBg
-    : `linear-gradient(135deg, ${colors.primary || '#0EA5E9'} 0%, ${colors.accent || colors.secondary || '#22D3EE'} 100%)`;
+  const finalCta = isSectionActive('final_cta')
+    ? (configSections.final_cta !== undefined
+        ? (configSections.final_cta ?? {})
+        : template?.defaultData?.final_cta || {})
+    : {};
 
   const socialLinks = isSectionActive('social')
     ? (configSections.social && 'social_links' in (configSections.social ?? {})
@@ -363,22 +351,22 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
                 </div>
               )}
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                {header.cta_button?.url && header.cta_button?.label && (
+                {header.cta_button?.label && (
                   <Button
                     size="lg"
                     className="shadow-lg w-full sm:w-auto"
                     style={{ backgroundColor: colors.accent || '#22D3EE', color: colors.buttonText || '#0F172A', fontFamily: font }}
-                    onClick={() => window.open(header.cta_button.url, '_blank', 'noopener,noreferrer')}
+                    onClick={() => handleAppointmentBooking(configSections.appointments)}
                   >
                     {header.cta_button.label}
                   </Button>
                 )}
-                {header.secondary_cta?.url && header.secondary_cta?.label && (
+                {header.secondary_cta?.label && (
                   <Button
                     variant="outline"
                     className="bg-white/10 text-white border-white/30 hover:bg-white/20 w-full sm:w-auto"
                     style={{ fontFamily: font }}
-                    onClick={() => window.open(header.secondary_cta.url, '_blank', 'noopener,noreferrer')}
+                    onClick={() => handleAppointmentBooking(configSections.appointments)}
                   >
                     {header.secondary_cta.label}
                   </Button>
@@ -423,41 +411,71 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
       </section>
 
       <div className="space-y-12 px-4 sm:px-0">
-        {(about.mission_statement || Array.isArray(about.value_props)) && (
+        {isSectionActive('how_it_works') && (howItWorks.heading || Array.isArray(howItWorks.steps)) && (
           <section className="border p-6 sm:p-8" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
             <div className="space-y-6">
-              <div className="space-y-4">
-                <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{t('Why Choose Us')}</h2>
-                {about.mission_statement && (
-                  <p className="text-base" style={{ color: colors.text }}>{about.mission_statement}</p>
+              <div className="space-y-2 text-center">
+                <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{howItWorks.heading || t('How It Works')}</h2>
+                {howItWorks.subheading && (
+                  <p className="text-sm" style={{ color: colors.text }}>{howItWorks.subheading}</p>
                 )}
-                <div className="flex flex-wrap gap-4 text-sm" style={{ color: colors.text }}>
-                  {about.experience_years && (
-                    <Badge variant="secondary" className="bg-[rgba(0,0,0,0.05)]">
-                      {about.experience_years}+ {t('years experience')}
-                    </Badge>
-                  )}
-                  {about.license_numbers && <Badge variant="outline">{about.license_numbers}</Badge>}
-                  {about.service_regions && (
-                    <span className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      {about.service_regions}
-                    </span>
-                  )}
-                </div>
               </div>
-              {Array.isArray(about.value_props) && about.value_props.length > 0 && (
+              {Array.isArray(howItWorks.steps) && howItWorks.steps.length > 0 && (
                 <div className="space-y-4">
-                  {about.value_props.map((prop: any, idx: number) => (
+                  {howItWorks.steps.map((step: any, idx: number) => (
                     <div
                       key={idx}
-                      className="border p-4"
+                      className="border p-4 h-full"
                       style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}
                     >
-                      <h3 className="font-semibold text-sm uppercase tracking-wide" style={{ color: colors.primary }}>
-                        {prop.title}
-                      </h3>
-                      <p className="text-sm mt-2" style={{ color: colors.text }}>{prop.description}</p>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold" style={{ backgroundColor: colors.accent, color: colors.primary }}>
+                          {idx + 1}
+                        </div>
+                        <h3 className="font-semibold" style={{ color: colors.text }}>{step.title}</h3>
+                      </div>
+                      {step.description && (
+                        <p className="text-sm" style={{ color: colors.text }}>{step.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {howItWorks.cta_label && (
+                <div className="text-center">
+                  <Button
+                    style={{ backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF', fontFamily: font }}
+                    onClick={() => handleAppointmentBooking(configSections.appointments)}
+                  >
+                    {howItWorks.cta_label}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {isSectionActive('why_us') && (whyUs.heading || Array.isArray(whyUs.reasons)) && (
+          <section className="border p-6 sm:p-8" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
+            <div className="space-y-4">
+              <div className="space-y-2 text-center">
+                <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{whyUs.heading || t('Why Choose Us')}</h2>
+                {whyUs.subheading && (
+                  <p className="text-sm" style={{ color: colors.text }}>{whyUs.subheading}</p>
+                )}
+              </div>
+              {Array.isArray(whyUs.reasons) && whyUs.reasons.length > 0 && (
+                <div className="space-y-4">
+                  {whyUs.reasons.map((reason: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="border p-4 h-full flex flex-col"
+                      style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}
+                    >
+                      <h3 className="font-semibold text-base mb-2" style={{ color: colors.text }}>{reason.title}</h3>
+                      {reason.description && (
+                        <p className="text-sm" style={{ color: colors.text }}>{reason.description}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -465,54 +483,6 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
             </div>
           </section>
         )}
-
-        <section>
-          <div className="space-y-2 mb-6 text-center">
-            <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{serviceHighlights.heading || t('Our Solar Services')}</h2>
-            {serviceHighlights.subheading && (
-              <p className="text-sm" style={{ color: colors.text }}>{serviceHighlights.subheading}</p>
-            )}
-          </div>
-          {serviceHighlights && Array.isArray(serviceHighlights.services) && serviceHighlights.services.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {serviceHighlights.services.map((service: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="border p-5 h-full flex flex-col"
-                  style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full text-xl" style={{ backgroundColor: colors.accent, color: colors.primary }}>
-                      {service.icon}
-                    </div>
-                    <h3 className="text-lg font-semibold" style={{ color: colors.text }}>{service.title}</h3>
-                  </div>
-                  <p className="text-sm flex-grow" style={{ color: colors.text }}>{service.description}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
-              <SunMedium className="h-8 w-8 text-amber-400" />
-              <h3 className="text-lg font-semibold" style={{ color: colors.text }}>
-                {t('Services Section')}
-              </h3>
-              <p className="text-sm" style={{ color: colors.text }}>
-                {t('This section pulls data from your Services page. Add services there to display them here.')}
-              </p>
-            </div>
-          )}
-          {serviceHighlights.cta_label && (
-            <div className="mt-6 text-center">
-              <Button
-                style={{ backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF', fontFamily: font }}
-                onClick={() => serviceHighlights.cta_link && window.open(serviceHighlights.cta_link, '_blank', 'noopener,noreferrer')}
-              >
-                {serviceHighlights.cta_label}
-              </Button>
-            </div>
-          )}
-        </section>
 
         <section>
           <div className="space-y-2 mb-6 text-center">
@@ -572,72 +542,6 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
           )}
         </section>
 
-        {(Array.isArray(financing.options) && financing.options.length > 0) || (Array.isArray(financing.incentives) && financing.incentives.length > 0) ? (
-          <section className="space-y-6 sm:space-y-8">
-            {Array.isArray(financing.options) && financing.options.length > 0 && (
-              <div
-                className="border p-5 sm:p-6 h-full"
-                style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
-              >
-                <h2 className="text-xl font-semibold mb-4" style={{ color: colors.primary }}>{t('Flexible Financing')}</h2>
-                <div className="space-y-4">
-                  {financing.options.map((option: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="border p-4 space-y-2"
-                      style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold" style={{ color: colors.text }}>{option.name}</h3>
-                        {option.type && <Badge variant="outline">{option.type.toUpperCase()}</Badge>}
-                      </div>
-                      <p className="text-sm" style={{ color: colors.text }}>{option.interest_rate}</p>
-                      <p className="text-sm" style={{ color: colors.text }}>{option.down_payment}</p>
-                      {option.cta_url && option.cta_label && (
-                        <Button
-                          size="sm"
-                          style={{ fontFamily: font, backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF' }}
-                          onClick={() => window.open(option.cta_url, '_blank', 'noopener,noreferrer')}
-                        >
-                          {option.cta_label}
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {Array.isArray(financing.incentives) && financing.incentives.length > 0 && (
-              <div
-                className="border p-6 h-full"
-                style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}
-              >
-                <h2 className="text-xl font-semibold mb-4" style={{ color: colors.primary }}>{t('Incentives & Rebates')}</h2>
-                <div className="space-y-4">
-                  {financing.incentives.map((incentive: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="rounded-xl border p-4 space-y-2"
-                      style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold" style={{ color: colors.text }}>{incentive.title}</h3>
-                        {incentive.type && <Badge variant="outline">{incentive.type.toUpperCase()}</Badge>}
-                      </div>
-                      <p className="text-sm" style={{ color: colors.text }}>{incentive.amount}</p>
-                      {incentive.requirements && <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>{incentive.requirements}</p>}
-                      {incentive.expires_on && (
-                        <p className="text-xs uppercase tracking-wide" style={{ color: colors.secondary }}>{t('Deadline')}: {incentive.expires_on}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-        ) : null}
-
         {isSectionActive('featured_projects') && (
           <section>
             <div className="space-y-2 mb-6 text-center">
@@ -693,61 +597,55 @@ const SolarInstallationTemplate: React.FC<SolarInstallationTemplateProps> = ({ d
           </section>
         )}
 
-        {galleryActive && (
-          <section className="border p-6" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
-            <div className="mb-6 space-y-2 text-center">
-              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{galleryData.heading || t('Project Gallery')}</h2>
-              {galleryData.subheading && (
-                <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>
-                  {galleryData.subheading}
-                </p>
+        {isSectionActive('savings_calculator') && (savingsCalculator.heading || savingsCalculator.description) && (
+          <section className="border p-6 sm:p-8" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: colors.cardBg || '#FFFFFF' }}>
+            <div className="space-y-4 max-w-xl mx-auto text-center">
+              <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>{savingsCalculator.heading || t('See How Much You Can Save')}</h2>
+              {savingsCalculator.description && (
+                <p className="text-sm" style={{ color: colors.text }}>{savingsCalculator.description}</p>
               )}
             </div>
-            {galleryData && galleryData.items && Array.isArray(galleryData.items) && galleryData.items.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                {galleryData.items.map((item: any, idx: number) => (
-                  <div key={idx} className="border overflow-hidden rounded-lg" style={{ borderColor: colors.borderColor || '#E2E8F0', backgroundColor: '#FFFFFF' }}>
-                    {item.media_url && (
-                      <div className="relative w-full" style={{ paddingBottom: item.media_type === 'image' ? '75%' : '56.25%' }}>
-                        {item.media_type === 'image' ? (
-                          <img
-                            src={item.media_url}
-                            alt={item.title || t('Gallery image')}
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                            <VideoIcon className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-4 space-y-2">
-                      {item.title && (
-                        <h3 className="text-lg font-semibold" style={{ color: colors.primary }}>
-                          {item.title}
-                        </h3>
-                      )}
-                      {item.description && (
-                        <p className="text-sm text-muted-foreground" style={{ color: colors.text }}>
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+            <div className="space-y-3 mt-6 max-w-xl mx-auto">
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: colors.text }}>
+                  {savingsCalculator.bill_label || t('Your Current Monthly Bill')}
+                </label>
+                <div className="border rounded px-3 py-2 text-sm bg-white" />
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
-                <SunMedium className="h-8 w-8 text-amber-400" />
-                <h3 className="text-lg font-semibold" style={{ color: colors.text }}>
-                  {t('Gallery Section')}
-                </h3>
-                <p className="text-sm" style={{ color: colors.text }}>
-                  {t('This section pulls data from your Gallery page. Add images there to display them here.')}
-                </p>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: colors.text }}>
+                  {savingsCalculator.savings_label || t('Estimated Monthly Savings')}
+                </label>
+                <div className="border rounded px-3 py-2 text-sm bg-white" />
               </div>
-            )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                <div>
+                  <label className="text-xs font-semibold block mb-1" style={{ color: colors.text }}>
+                    {savingsCalculator.name_label || t('Full Name')}
+                  </label>
+                  <div className="border rounded px-3 py-2 text-sm bg-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold block mb-1" style={{ color: colors.text }}>
+                    {savingsCalculator.phone_label || t('Phone Number')}
+                  </label>
+                  <div className="border rounded px-3 py-2 text-sm bg-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold block mb-1" style={{ color: colors.text }}>
+                    {savingsCalculator.location_label || t('Location / Area')}
+                  </label>
+                  <div className="border rounded px-3 py-2 text-sm bg-white" />
+                </div>
+              </div>
+              <div className="pt-3 text-center">
+                <Button
+                  style={{ backgroundColor: colors.primary, color: colors.buttonText || '#FFFFFF', fontFamily: font }}
+                >
+                  {savingsCalculator.cta_label || t('Calculate My Savings')}
+                </Button>
+              </div>
+            </div>
           </section>
         )}
 

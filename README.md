@@ -117,3 +117,85 @@ After running the seeders, you can log in with the following credentials:
 ## License
 
 The etwave.space platform is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Deployment: Local → GitHub → VPS
+
+This project is deployed using a Git-based workflow with a VPS.
+
+### Local development workflow
+
+- **Working directory**: `c:/xampp/htdocs/main-file`
+- Make code changes locally
+- Build front-end assets with Vite:
+
+  ```bash
+  npm install       # first time
+  npm run build
+  ```
+
+- Commit and push changes to GitHub:
+
+  ```bash
+  git add .
+  git commit -m "Describe your change"
+  git push origin main
+  ```
+
+> Note: `public/build` is committed to the repository (see `.gitignore`). This allows Vite assets to be built locally and served directly on the VPS without running `npm run build` there.
+
+### VPS layout
+
+- Repository clone: `/var/www/html/etwave.space`
+- Web server document root: `/var/www/html/public`
+- `public` is a symlink pointing to the Laravel `public` directory:
+
+  ```bash
+  cd /var/www/html
+  ln -s /var/www/html/etwave.space/public /var/www/html/public
+  ```
+
+### Deploy script on VPS
+
+Deployment is handled via `deploy.sh` in the project root on the VPS:
+
+```bash
+cd /var/www/html/etwave.space
+sudo bash deploy.sh
+```
+
+Example `deploy.sh` responsibilities (actual contents may evolve):
+
+- Pull latest code from GitHub (`main` branch) using the VPS deploy SSH key
+- Run `composer install --no-dev --optimize-autoloader`
+- Optionally run database migrations: `php artisan migrate --force`
+- Clear caches: `config`, `route`, `view`, `application`
+
+Because Vite assets are built and committed from the local machine, the deploy script **does not need** to run `npm run build` on the VPS (which may have limited RAM).
+
+### Environment configuration on VPS
+
+- `.env` lives at: `/var/www/html/etwave.space/.env`
+- It should contain production settings, for example:
+
+  - `APP_ENV=production`
+  - `APP_DEBUG=false`
+  - `APP_URL=https://etwave.space`
+  - Correct `DB_*` credentials for the production database
+
+After updating `.env` on the VPS, run:
+
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+```
+
+### Summary deploy flow
+
+1. Develop locally in `main-file`
+2. Run `npm run build` locally
+3. Commit and push to `main` on GitHub
+4. SSH into the VPS and run `sudo bash /var/www/html/etwave.space/deploy.sh`
+
+This keeps the server deployment fully reproducible and avoids manual file uploads.
