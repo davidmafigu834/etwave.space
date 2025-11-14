@@ -1,0 +1,1 @@
+System.register(["./ui-legacy-Df76W54t.js"],function(e,t){"use strict";var r;return{setters:[function(e){r=e.j}],execute:function(){e("T",function(e){var t=e.children;return r.jsx("div",{className:"fixed top-0 right-0 z-50 p-4 space-y-4 w-full max-w-xs",children:t})})}}});

@@ -1,0 +1,1 @@
+System.register(["./app-legacy-Ct73uABr.js"],function(t,e){"use strict";var n;return{setters:[function(t){n=t.ao}],execute:function(){t("t",function(t,e){return n.isInitialized?n.t(t,e):"string"==typeof t?t:String(t)})}}});

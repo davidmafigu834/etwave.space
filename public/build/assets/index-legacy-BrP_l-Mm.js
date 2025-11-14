@@ -1,0 +1,1 @@
+System.register(["./ui-legacy-Df76W54t.js"],function(e,r){"use strict";var u;return{setters:[function(e){u=e.r}],execute:function(){e("u",function(e){var r=u.useRef({value:e,previous:e});return u.useMemo(function(){return r.current.value!==e&&(r.current.previous=r.current.value,r.current.value=e),r.current.previous},[e])})}}});
