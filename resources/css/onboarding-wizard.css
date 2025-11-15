@@ -60,11 +60,31 @@ body.onboarding-wizard-open {
     max-height: 95vh;
     padding: 1rem;
     margin: 0.5rem;
+    border-radius: 0.75rem;
   }
-  
+
   .onboarding-wizard-content h2 {
     font-size: 1.25rem;
     line-height: 1.75rem;
+  }
+
+  /* Improve spacing for mobile */
+  .onboarding-wizard-content .grid.gap-6 {
+    gap: 1rem;
+  }
+
+  /* Better button spacing on mobile */
+  .onboarding-wizard-content .flex.flex-col-reverse.gap-3 {
+    gap: 1rem;
+  }
+
+  /* Ensure form fields have proper spacing */
+  .onboarding-wizard-content .grid.gap-5 {
+    gap: 1.25rem;
+  }
+
+  .onboarding-wizard-content .grid.gap-4 {
+    gap: 1rem;
   }
 }
 

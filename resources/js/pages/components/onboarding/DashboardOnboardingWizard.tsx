@@ -338,25 +338,25 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:gap-3">
             {steps.map((step, index) => {
               const isActive = index === currentStep;
               const isCompleted = index < currentStep;
               return (
-                <div key={step.key} className="flex items-center gap-2 text-sm">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition ${isActive ? 'border-primary bg-primary text-primary-foreground' : isCompleted ? 'border-primary/60 bg-primary/10 text-primary' : 'border-border text-muted-foreground' }`}>
+                <div key={step.key} className="flex items-center gap-3 text-sm">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition flex-shrink-0 ${isActive ? 'border-primary bg-primary text-primary-foreground' : isCompleted ? 'border-primary/60 bg-primary/10 text-primary' : 'border-border text-muted-foreground' }`}>
                     {index + 1}
                   </div>
-                  <div className="hidden flex-col md:flex">
+                  <div className="flex flex-col min-w-0 flex-1">
                     <span className={`text-xs uppercase tracking-wide ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                       {step.title}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground leading-tight">
                       {step.description}
                     </span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className="hidden h-px w-8 bg-border md:block" />
+                    <div className="hidden h-px w-8 bg-border md:block flex-shrink-0" />
                   )}
                 </div>
               );
@@ -397,7 +397,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                   />
                   {displayFieldError('business_description')}
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="business_subcategory">
                       {t('Speciality or niche')}
@@ -441,7 +441,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                   />
                   {displayFieldError('details.company_overview')}
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="mission_statement">
                       {t('Mission statement')}
@@ -469,7 +469,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     {displayFieldError('details.vision_statement')}
                   </div>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="unique_value_proposition">
                       {t('Unique value proposition')}
@@ -497,7 +497,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     {displayFieldError('details.target_audience')}
                   </div>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="service_highlights">
                       {t('Signature services or highlights')}
@@ -525,7 +525,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     {displayFieldError('details.notable_projects')}
                   </div>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="testimonials">
                       {t('Testimonials or social proof')}
@@ -553,7 +553,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     {displayFieldError('details.brand_voice')}
                   </div>
                 </div>
-                <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
+                <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
                   <div>
                     <label className="text-sm font-medium" htmlFor="call_to_action">
                       {t('Primary call-to-action')}
@@ -585,7 +585,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
 
             {currentStepKey === 'contact' && (
               <div className="grid gap-5">
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="contact_name">
                       {t('Primary contact name')}
@@ -612,7 +612,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     {displayFieldError('contact_email')}
                   </div>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="contact_phone">
                       {t('Phone number')}
@@ -638,7 +638,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     {displayFieldError('whatsapp')}
                   </div>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="text-sm font-medium" htmlFor="country">
                       {t('Country')}
@@ -704,7 +704,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     placeholder={t('Start typing to filter categories...')}
                   />
                 </div>
-                <div className="grid gap-3 max-h-[320px] overflow-y-auto pr-1 md:grid-cols-2">
+                <div className="grid gap-3 max-h-[320px] overflow-y-auto pr-1 sm:grid-cols-2">
                   {filteredCategories.map((option) => {
                     const isSelected = formData.business_category === option.value;
                     return (
@@ -712,7 +712,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                         key={option.value}
                         type="button"
                         onClick={() => updateField('business_category', option.value)}
-                        className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'border-border hover:border-primary/50 hover:bg-primary/5'}`}
+                        className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition min-h-[60px] touch-manipulation ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'border-border hover:border-primary/50 hover:bg-primary/5'}`}
                       >
                         <div className={`mt-1 h-4 w-4 flex-shrink-0 rounded-full border ${isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/40'}`} />
                         <div className="space-y-1">
@@ -737,7 +737,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                     {t('Summary')}
                   </h3>
-                  <div className="mt-3 grid gap-3 text-sm md:grid-cols-2">
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     <div>
                       <p className="text-muted-foreground">{t('Business name')}</p>
                       <p className="font-medium">{formData.business_name || '—'}</p>
@@ -802,13 +802,13 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
             )}
           </div>
 
-          <div className="flex flex-col gap-3 pt-4 border-t md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col-reverse gap-3 pt-4 border-t sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs text-muted-foreground">
               {currentStep < steps.length - 1
                 ? t('Step {{current}} of {{total}}', { current: currentStep + 1, total: steps.length })
                 : t('You are ready to finish!')}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
               {(currentStep > 0 || canDismiss) && (
                 <Button
                   variant="outline"
@@ -821,6 +821,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                     }
                   }}
                   disabled={isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   {currentStep > 0 ? t('Back') : t('Close')}
                 </Button>
@@ -830,6 +831,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                   type="button"
                   onClick={goNext}
                   disabled={!canProceed || isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   {t('Continue')}
                 </Button>
@@ -839,6 +841,7 @@ export const DashboardOnboardingWizard: React.FC<DashboardOnboardingWizardProps>
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   {isSubmitting ? t('Saving...') : t('Save profile')}
                 </Button>
