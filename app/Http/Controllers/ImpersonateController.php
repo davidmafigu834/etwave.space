@@ -25,6 +25,8 @@ class ImpersonateController extends Controller
         
         // Login as the target user first
         auth()->loginUsingId($userId);
+        // Regenerate session to prevent fixation
+        session()->regenerate();
         // Then store original user ID in session
         session()->put('impersonated_user_id', $userId);
         session()->put('impersonated_by', $originalUserId);
@@ -42,6 +44,7 @@ class ImpersonateController extends Controller
         $originalUserId = session('impersonated_by');
         if ($originalUserId) {
             auth()->loginUsingId($originalUserId);
+            session()->regenerate();
             session()->forget('impersonated_by');
             session()->forget('impersonated_user_id');
             session()->save();

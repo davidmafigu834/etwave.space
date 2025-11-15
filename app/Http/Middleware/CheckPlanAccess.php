@@ -16,6 +16,11 @@ class CheckPlanAccess
             return $next($request);
         }
 
+        // When superadmin is impersonating a company, skip plan enforcement
+        if (session()->has('impersonated_by')) {
+            return $next($request);
+        }
+
         // Super admin has full access
         if ($user->isSuperAdmin()) {
             return $next($request);

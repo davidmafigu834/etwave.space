@@ -377,45 +377,57 @@ function EcommerceTemplate({ data, template }: EcommerceTemplateProps) {
           {t('Shop by Category')}
         </h2>
         
-        <div className="grid grid-cols-2 gap-3">
+        {/* Vertical stacked category cards to keep focus and readability, especially on mobile */}
+        <div className="space-y-3">
           {categories.map((category: any, index: number) => (
             <a
               key={index}
               href={category.url || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative rounded-lg overflow-hidden aspect-square"
+              className="relative rounded-lg overflow-hidden flex h-24 md:h-28"
             >
-              {category.image ? (
-                <img 
-                  src={category.image} 
-                  alt={category.title} 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div 
-                  className="w-full h-full" 
-                  style={{ 
-                    backgroundColor: colors.accent,
-                    backgroundImage: `linear-gradient(45deg, ${colors.primary}20, ${colors.secondary}20)`
-                  }}
-                ></div>
-              )}
-              
+              {/* Thumbnail / visual */}
+              <div className="w-24 md:w-32 h-full flex-shrink-0">
+                {category.image ? (
+                  <img 
+                    src={category.image} 
+                    alt={category.title} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div 
+                    className="w-full h-full" 
+                    style={{ 
+                      backgroundColor: colors.accent,
+                      backgroundImage: `linear-gradient(45deg, ${colors.primary}20, ${colors.secondary}20)`
+                    }}
+                  ></div>
+                )}
+              </div>
+
+              {/* Text content */}
               <div 
-                className="absolute inset-0 flex items-center justify-center" 
-                style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}
+                className="flex-1 flex flex-col justify-center px-4"
+                style={{ backgroundColor: colors.background, border: `1px solid ${colors.borderColor}` }}
               >
                 <h3 
-                  className="text-base font-bold" 
+                  className="text-sm md:text-base font-semibold mb-1 line-clamp-1" 
                   style={{ 
-                    color: '#FFFFFF',
-                    fontFamily: font,
-                    textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                    color: colors.text,
+                    fontFamily: font
                   }}
                 >
                   {category.title}
                 </h3>
+                {category.description && (
+                  <p
+                    className="text-xs md:text-sm line-clamp-2"
+                    style={{ color: colors.text + '99' }}
+                  >
+                    {category.description}
+                  </p>
+                )}
               </div>
             </a>
           ))}
@@ -461,21 +473,22 @@ function EcommerceTemplate({ data, template }: EcommerceTemplateProps) {
           </a>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
+        {/* Vertical stacked product cards: single column for clearer browsing and mobile focus */}
+        <div className="space-y-3">
           {products.map((product: any, index: number) => (
             <a
               key={index}
               href={product.url || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg overflow-hidden"
+              className="rounded-lg overflow-hidden flex"
               style={{ 
                 backgroundColor: colors.background,
                 border: `1px solid ${colors.borderColor}`
               }}
             >
               {/* Product Image */}
-              <div className="relative aspect-square">
+              <div className="relative w-24 md:w-32 h-full flex-shrink-0">
                 {product.image ? (
                   <img 
                     src={product.image} 
@@ -508,25 +521,10 @@ function EcommerceTemplate({ data, template }: EcommerceTemplateProps) {
                     {product.badge.toUpperCase()}
                   </span>
                 )}
-                
-                {/* View Details Button */}
-                <span 
-                  className="absolute bottom-2 right-2 inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium cursor-pointer" 
-                  style={{ 
-                    backgroundColor: colors.primary,
-                    color: colors.buttonText,
-                    minWidth: '2rem',
-                    height: '1.5rem',
-                    fontSize: '10px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  {t('View')}
-                </span>
               </div>
               
               {/* Product Info */}
-              <div className="p-3">
+              <div className="p-3 flex-1 flex flex-col justify-center">
                 <p 
                   className="text-xs mb-1" 
                   style={{ color: colors.text + '80' }}

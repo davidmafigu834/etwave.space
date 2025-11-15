@@ -10,6 +10,11 @@ class EnsureEmailIsVerified
 {
     public function handle(Request $request, Closure $next)
     {
+        // When superadmin is impersonating a company, skip email verification
+        if (session()->has('impersonated_by')) {
+            return $next($request);
+        }
+
         $emailVerificationEnabled = getSetting('emailVerification', false);
         
         if ($emailVerificationEnabled && 

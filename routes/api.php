@@ -29,8 +29,8 @@ Route::middleware('api')->prefix('v1')->group(function () {
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->middleware('auth:sanctum');
     Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus'])->middleware('auth:sanctum');
     
-    // Announcement routes
-    Route::prefix('announcements')->middleware('auth:sanctum')->group(function () {
+    // Announcement routes (used by web dashboard, no Sanctum token required)
+    Route::prefix('announcements')->group(function () {
         // User-facing routes
         Route::get('/', [AnnouncementController::class, 'index']);
         Route::post('/{announcement}/read', [AnnouncementController::class, 'markAsRead']);

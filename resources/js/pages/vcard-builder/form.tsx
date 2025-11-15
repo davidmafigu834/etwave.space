@@ -1340,6 +1340,13 @@ export default function VCardBuilderForm({ business, userPlan, planFeatures, use
   }, [business?.business_type, initialBusinessType]);
 
   const allowedBusinessTypes = React.useMemo<TemplateOption[]>(() => {
+    // In edit mode, always allow all templates and honor the saved business_type.
+    // This prevents the onboarding profile category from forcing a different template
+    // (e.g. solar-installation) when editing an existing ecommerce business.
+    if (isEdit) {
+      return businessTypeOptions;
+    }
+
     if (isSuperAdmin) {
       return businessTypeOptions;
     }
@@ -1359,7 +1366,7 @@ export default function VCardBuilderForm({ business, userPlan, planFeatures, use
     }
 
     return businessTypeOptions;
-  }, [isSuperAdmin, persistedBusinessType, onboardingProfile?.business_category]);
+  }, [isEdit, isSuperAdmin, persistedBusinessType, onboardingProfile?.business_category]);
 
   const currentBusinessType = React.useMemo(() => {
     if (allowedBusinessTypes.length === 0) {

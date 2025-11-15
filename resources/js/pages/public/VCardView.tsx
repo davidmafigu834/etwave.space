@@ -18,6 +18,9 @@ interface Business {
   business_type: string;
   config_sections: any;
   favicon?: string;
+  // Optional ecommerce CRM relations (loaded for ecommerce businesses)
+  products?: any[];
+  categories?: any[];
 }
 
 interface Props {
@@ -180,11 +183,69 @@ export default function VCardView({ business, pwa_enabled }: Props) {
   };
   
   const template = getBusinessTemplate(business.business_type);
-  
+
+  const buildConfigSections = (b: Business) => {
+    const baseConfig = b.config_sections || {};
+
+    if (b.business_type !== 'ecommerce') {
+      return baseConfig;
+    }
+
+    const products = Array.isArray(b.products) ? b.products : [];
+    const categories = Array.isArray(b.categories) ? b.categories : [];
+
+    const mappedCategories = categories.map((category: any) => {
+      const firstMedia = Array.isArray((category as any).media) && (category as any).media.length > 0
+        ? (category as any).media[0]
+        : null;
+
+      return {
+        title: category.name,
+        description: category.description,
+        image: firstMedia?.url || null,
+        url: '#',
+      };
+    });
+
+    const mappedProducts = products.map((product: any) => {
+      const firstMedia = Array.isArray((product as any).media) && (product as any).media.length > 0
+        ? (product as any).media[0]
+        : null;
+
+      return {
+        title: product.name,
+        description: product.description || product.short_description,
+        category: product.category?.name || undefined,
+        image: firstMedia?.url || null,
+        price: product.price != null ? `$${Number(product.price).toFixed(2)}` : undefined,
+        sale_price: product.sale_price != null ? `$${Number(product.sale_price).toFixed(2)}` : undefined,
+        badge: product.is_featured ? 'bestseller' : 'none',
+        url: '#',
+      };
+    });
+
+    return {
+      ...baseConfig,
+      categories: {
+        ...(baseConfig?.categories || {}),
+        // Only override if there is CRM data; otherwise keep existing config
+        category_list: mappedCategories.length > 0
+          ? mappedCategories
+          : baseConfig?.categories?.category_list || [],
+      },
+      products: {
+        ...(baseConfig?.products || {}),
+        product_list: mappedProducts.length > 0
+          ? mappedProducts
+          : baseConfig?.products?.product_list || [],
+      },
+    };
+  };
+
   const data = {
     name: business.name,
     business_type: business.business_type,
-    config_sections: business.config_sections
+    config_sections: buildConfigSections(business),
   };
 
   const colors = { primary: '#3B82F6', secondary: '#1E40AF', accent: '#F59E0B', text: '#E2E8F0', ...(template?.defaultColors ?? {}), ...(business?.config_sections?.colors ?? {}) };

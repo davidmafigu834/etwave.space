@@ -19,6 +19,11 @@ class CheckPermission
 
         $user = auth()->user();
         
+        // When superadmin is impersonating a company, skip permission enforcement
+        if (session()->has('impersonated_by')) {
+            return $next($request);
+        }
+        
         // Super admin has all permissions
         if ($user->type === 'superadmin' || $user->type === 'super admin') {
             return $next($request);

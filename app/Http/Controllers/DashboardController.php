@@ -138,15 +138,18 @@ class DashboardController extends Controller
                 'monthlyGrowth' => $monthlyGrowth,
             ],
             'recentActivity' => $this->getRecentSystemActivity(),
-            'topPlans' => Plan::withCount('users')
-                ->orderBy('users_count', 'desc')
+            'topPlans' => PlanOrder::with('plan')
+                ->select('plan_id', DB::raw('COUNT(*) as subscribers'), DB::raw('SUM(final_price) as revenue'))
+                ->where('status', 'approved')
+                ->groupBy('plan_id')
+                ->orderByDesc('subscribers')
                 ->take(3)
                 ->get()
-                ->map(function ($plan) {
+                ->map(function ($planOrder) {
                     return [
-                        'name' => $plan->name,
-                        'subscribers' => $plan->users_count,
-                        'revenue' => $plan->users_count * $plan->price,
+                        'name' => $planOrder->plan->name ?? __('Unknown Plan'),
+                        'subscribers' => (int) $planOrder->subscribers,
+                        'revenue' => (float) $planOrder->revenue,
                     ];
                 })
         ];
@@ -261,28 +264,33 @@ class DashboardController extends Controller
             ->get();
             
         foreach ($recentCompanies as $company) {
+            $companyTime = $company->created_at;
             $activities[] = [
                 'id' => 'company_' . $company->id,
                 'type' => 'company',
                 'message' => 'New company "' . $company->name . '" registered',
-                'time' => $company->created_at->diffForHumans(),
-                'status' => 'success'
+                'time' => $companyTime->diffForHumans(),
+                'status' => 'success',
+                '_timestamp' => $companyTime->timestamp,
             ];
         }
         
         // Recent plan orders
         $recentOrders = PlanOrder::with('user')
-            ->latest()
+            ->where('status', 'approved')
+            ->orderByRaw('COALESCE(processed_at, created_at) DESC')
             ->take(3)
             ->get();
             
         foreach ($recentOrders as $order) {
+            $orderTime = $order->processed_at ?? $order->created_at;
             $activities[] = [
                 'id' => 'order_' . $order->id,
                 'type' => 'payment',
                 'message' => 'Payment received from ' . ($order->user->name ?? 'Unknown'),
-                'time' => $order->created_at->diffForHumans(),
-                'status' => $order->status === 'approved' ? 'success' : 'warning'
+                'time' => $orderTime?->diffForHumans(),
+                'status' => 'success',
+                '_timestamp' => $orderTime?->timestamp ?? now()->timestamp,
             ];
         }
         
@@ -293,21 +301,26 @@ class DashboardController extends Controller
             ->get();
             
         foreach ($recentRequests as $request) {
+            $requestTime = $request->created_at;
             $activities[] = [
                 'id' => 'request_' . $request->id,
                 'type' => 'plan',
                 'message' => 'Plan upgrade request from ' . ($request->user->name ?? 'Unknown'),
-                'time' => $request->created_at->diffForHumans(),
-                'status' => 'warning'
+                'time' => $requestTime->diffForHumans(),
+                'status' => 'warning',
+                '_timestamp' => $requestTime->timestamp,
             ];
         }
         
         // Sort by creation time and take latest 5
         usort($activities, function($a, $b) {
-            return strtotime($b['time']) - strtotime($a['time']);
+            return ($b['_timestamp'] ?? 0) <=> ($a['_timestamp'] ?? 0);
         });
-        
-        return array_slice($activities, 0, 5);
+
+        return array_map(function ($activity) {
+            unset($activity['_timestamp']);
+            return $activity;
+        }, array_slice($activities, 0, 5));
     }
     
     /**

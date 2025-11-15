@@ -31,20 +31,24 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
     <AppSidebarLayout>
       <Head title="Add Product" />
 
-      <div className="py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Add Product - {business.name}</h2>
-          <Link 
-            href={route('ecommerce.products.index', business.id)}
-            className="text-blue-500 hover:text-blue-700 font-medium"
-          >
-            ← Back to Products
-          </Link>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-6 max-w-4xl mx-auto">
+      <div className="py-4 sm:py-6">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Add Product</h2>
+              <p className="text-sm text-gray-500">{business.name}</p>
+            </div>
+            <Link 
+              href={route('ecommerce.products.index', business.id)}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              ← Back to Products
+            </Link>
+          </div>
+          
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
           <form onSubmit={submit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Product Name *
@@ -52,7 +56,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                 <input
                   id="name"
                   type="text"
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                   value={data.name}
                   onChange={(e) => setData('name', e.target.value)}
                 />
@@ -66,7 +70,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                 <input
                   id="sku"
                   type="text"
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                   value={data.sku}
                   onChange={(e) => setData('sku', e.target.value)}
                 />
@@ -80,7 +84,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                 </label>
                 <select
                   id="category_id"
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                   value={data.category_id}
                   onChange={(e) => setData('category_id', e.target.value)}
                 >
@@ -102,7 +106,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                   id="stock_quantity"
                   type="number"
                   min="0"
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                   value={data.stock_quantity}
                   onChange={(e) => setData('stock_quantity', e.target.value)}
                 />
@@ -122,7 +126,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                     type="number"
                     step="0.01"
                     min="0"
-                    className="pl-8 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    className="pl-8 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                     value={data.price}
                     onChange={(e) => setData('price', e.target.value)}
                   />
@@ -143,7 +147,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                     type="number"
                     step="0.01"
                     min="0"
-                    className="pl-8 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    className="pl-8 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                     value={data.sale_price}
                     onChange={(e) => setData('sale_price', e.target.value)}
                   />
@@ -160,7 +164,7 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
               <textarea
                 id="short_description"
                 rows={2}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                 value={data.short_description}
                 onChange={(e) => setData('short_description', e.target.value)}
               />
@@ -175,14 +179,14 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
               <textarea
                 id="description"
                 rows={6}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
                 value={data.description}
                 onChange={(e) => setData('description', e.target.value)}
               />
               {errors.description && <div className="text-red-500 text-sm mt-1">{errors.description}</div>}
             </div>
             
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center">
                 <input
                   id="is_featured"
@@ -195,7 +199,6 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                   Featured Product
                 </label>
               </div>
-              
               <div className="flex items-center">
                 <input
                   id="is_active"
@@ -209,17 +212,17 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                 </label>
               </div>
             </div>
-            
-            <div className="mt-8 flex items-center justify-end">
+
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3">
               <Link 
                 href={route('ecommerce.products.index', business.id)}
-                className="mr-4 text-gray-600 hover:text-gray-800 font-medium"
+                className="text-sm text-gray-600 hover:text-gray-800 font-medium"
               >
                 Cancel
               </Link>
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition duration-200"
+                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors w-full sm:w-auto"
                 disabled={processing}
               >
                 {processing ? 'Saving...' : 'Save Product'}
@@ -228,7 +231,8 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
           </form>
         </div>
       </div>
-    </AppSidebarLayout>
+    </div>
+  </AppSidebarLayout>
   );
 };
 

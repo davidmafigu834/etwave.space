@@ -441,6 +441,13 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
             Route::get('companies/{company}/plans', [CompanyController::class, 'getPlans'])->middleware('permission:manage-plans-companies')->name('companies.plans');
             Route::put('companies/{company}/upgrade-plan', [CompanyController::class, 'upgradePlan'])->middleware('permission:upgrade-plan-companies')->name('companies.upgrade-plan');
             Route::get('companies/{company}/business-links', [CompanyController::class, 'getBusinessLinks'])->middleware('permission:manage-companies')->name('companies.business-links');
+
+            // Impersonation routes for superadmin -> company login
+            Route::get('impersonate/{user}', [ImpersonateController::class, 'start'])
+                ->name('impersonate.start');
+
+            Route::post('impersonate/leave', [ImpersonateController::class, 'leave'])
+                ->name('impersonate.leave');
         });
 
         // Contacts routes

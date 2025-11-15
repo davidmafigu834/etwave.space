@@ -58,76 +58,84 @@ const ProductsIndex: React.FC<ProductsIndexProps> = ({ business, products }) => 
     <AppSidebarLayout>
       <Head title="Products" />
 
-      <div className="py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Products - {business.name}</h2>
-          <Link 
-            href={route('ecommerce.products.create', business.id)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
-          >
-            Add Product
-          </Link>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-            <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <select
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="">All Categories</option>
-                  {/* In a real implementation, we would fetch categories from the backend */}
-                  <option value="1">Electronics</option>
-                  <option value="2">Clothing</option>
-                  <option value="3">Home & Garden</option>
-                </select>
-              </div>
-              
-              <div>
-                <select
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="featured">Featured</option>
-                </select>
-              </div>
-              
-              <div className="flex space-x-2">
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
-                >
-                  Filter
-                </button>
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-200"
-                >
-                  Reset
-                </button>
-              </div>
-            </form>
+      <div className="py-4 sm:py-6">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Products</h2>
+              <p className="text-sm text-gray-500">{business.name}</p>
+            </div>
+            <div className="flex justify-end">
+              <Link 
+                href={route('ecommerce.products.create', business.id)}
+                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
+              >
+                Add Product
+              </Link>
+            </div>
           </div>
           
-          <div className="overflow-x-auto">
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
+            {/* Filters */}
+            <div className="mb-4 sm:mb-6 rounded-lg bg-gray-50 p-3 sm:p-4">
+              <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <select
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  >
+                    <option value="">All Categories</option>
+                    {/* In a real implementation, we would fetch categories from the backend */}
+                    <option value="1">Electronics</option>
+                    <option value="2">Clothing</option>
+                    <option value="3">Home & Garden</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <select
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="featured">Featured</option>
+                  </select>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <button
+                    type="submit"
+                    className="w-full sm:flex-1 inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Filter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="w-full sm:flex-1 inline-flex items-center justify-center rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-300 transition-colors"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+            {/* Products table */}
+            <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -222,37 +230,38 @@ const ProductsIndex: React.FC<ProductsIndexProps> = ({ business, products }) => 
                 )}
               </tbody>
             </table>
-          </div>
-          
-          {products.meta && (
-            <div className="mt-6 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Showing <span className="font-medium">{products.meta.from || 0}</span> to <span className="font-medium">{products.meta.to || 0}</span> of{' '}
-                <span className="font-medium">{products.meta.total || 0}</span> results
-              </div>
-              
-              <div className="flex space-x-2">
-                {products.links.map((link: any, index: number) => (
-                  <Link
-                    key={index}
-                    href={link.url || '#'}
-                    dangerouslySetInnerHTML={{ __html: link.label }}
-                    className={`px-3 py-1 rounded-md text-sm ${
-                      link.active 
-                        ? 'bg-blue-500 text-white' 
-                        : link.url 
-                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    }`}
-                    preserveScroll
-                  />
-                ))}
-              </div>
             </div>
-          )}
-          
-          <div className="mt-6 text-sm text-gray-500">
-            <p>Tip: Use the filters above to quickly find products. Featured products will be highlighted on your store's homepage.</p>
+            
+            {products.meta && (
+              <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="text-xs sm:text-sm text-gray-700">
+                  Showing <span className="font-medium">{products.meta.from || 0}</span> to <span className="font-medium">{products.meta.to || 0}</span> of{' '}
+                  <span className="font-medium">{products.meta.total || 0}</span> results
+                </div>
+                
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {products.links.map((link: any, index: number) => (
+                    <Link
+                      key={index}
+                      href={link.url || '#'}
+                      dangerouslySetInnerHTML={{ __html: link.label }}
+                      className={`px-3 py-1 rounded-md text-xs sm:text-sm ${
+                        link.active 
+                          ? 'bg-blue-600 text-white' 
+                          : link.url 
+                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                      preserveScroll
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-5 text-xs sm:text-sm text-gray-500">
+              <p>Tip: Use the filters above to quickly find products. Featured products will be highlighted on your store's homepage.</p>
+            </div>
           </div>
         </div>
       </div>
