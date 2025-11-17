@@ -241,12 +241,21 @@ export default function Dashboard({ dashboardData }: { dashboardData: CompanyDas
                     <VCardPreview
                       businessType={currentBusiness.business_type || 'freelancer'}
                       data={{ 
+                        id: currentBusiness.id,
                         ...currentBusiness, 
                         config_sections: currentBusiness.config_sections || {},
-                        template_config: { 
-                          sections: currentBusiness.config_sections || {}, 
-                          sectionSettings: currentBusiness.config_sections || {} 
-                        } 
+                        template_config: currentBusiness.template_config || {
+                          sections: {
+                            hero: { visible: true },
+                            about: { visible: true },
+                            products: { visible: true },
+                            categories: { visible: true },
+                            testimonials: { visible: true },
+                            contact: { visible: true },
+                            footer: { visible: true }
+                          },
+                          sectionSettings: {}
+                        }
                       }}
                       template={null}
                     />

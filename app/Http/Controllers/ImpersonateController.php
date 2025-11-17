@@ -22,17 +22,36 @@ class ImpersonateController extends Controller
         ]);
 
         $originalUserId = auth()->id();
-        
-        // Login as the target user first
-        auth()->loginUsingId($userId);
-        // Regenerate session to prevent fixation
-        session()->regenerate();
-        // Then store original user ID in session
-        session()->put('impersonated_user_id', $userId);
-        session()->put('impersonated_by', $originalUserId);
+
+        // Store impersonation data BEFORE logout
+        $impersonationData = [
+            'impersonating_as' => $userId,
+            'original_user_id' => $originalUserId,
+            'impersonation_started_at' => now()
+        ];
+
+        // Fully log out the current user
+        auth()->logout();
+
+        // Clear session and regenerate completely
+        session()->flush();
+        session()->regenerate(true);
+
+        // Restore impersonation data in the new session
+        session()->put('impersonating_as', $impersonationData['impersonating_as']);
+        session()->put('original_user_id', $impersonationData['original_user_id']);
+        session()->put('impersonation_started_at', $impersonationData['impersonation_started_at']);
+
+        // Log in as the target user
+        auth()->loginUsingId($userId, true); // true for "remember me"
+
+        // Regenerate CSRF token to prevent token mismatch
+        session()->regenerateToken();
+
         session()->save();
-        
-        return redirect('/dashboard');
+
+        // Redirect with cache-busting parameter to ensure fresh page load
+        return redirect('/dashboard?t=' . time());
     }
 
     public function leave(Request $request)
@@ -41,16 +60,25 @@ class ImpersonateController extends Controller
             'timestamp' => now()
         ]);
 
-        $originalUserId = session('impersonated_by');
+        $originalUserId = session('original_user_id');
         if ($originalUserId) {
-            auth()->loginUsingId($originalUserId);
-            session()->regenerate();
-            session()->forget('impersonated_by');
-            session()->forget('impersonated_user_id');
+            // Log out current impersonated user
+            auth()->logout();
+
+            // Clear session and regenerate completely
+            session()->flush();
+            session()->regenerate(true);
+
+            // Log back in as the original user (superadmin)
+            auth()->loginUsingId($originalUserId, true);
+
+            // Regenerate CSRF token
+            session()->regenerateToken();
+
             session()->save();
         }
-        
+
         // Force full page reload to clear cache
-        return redirect('/companies');
+        return redirect('/companies?t=' . time());
     }
 }

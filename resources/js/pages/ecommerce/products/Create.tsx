@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Business, ProductCategory } from '@/types';
+import MediaPicker from '@/components/MediaPicker';
 
 interface ProductsCreateProps {
   business: Business;
@@ -20,6 +21,8 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
     stock_quantity: '',
     is_featured: false as boolean,
     is_active: true as boolean,
+    primary_image: '',
+    gallery_images: '',
   });
   
   const submit = (e: React.FormEvent) => {
@@ -184,6 +187,33 @@ const ProductsCreate: React.FC<ProductsCreateProps> = ({ business, categories })
                 onChange={(e) => setData('description', e.target.value)}
               />
               {errors.description && <div className="text-red-500 text-sm mt-1">{errors.description}</div>}
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <MediaPicker
+                  label="Product Image"
+                  value={data.primary_image}
+                  onChange={(val) => setData('primary_image', val)}
+                  placeholder="Select a primary product image"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This image appears first in the storefront and preview cards.
+                </p>
+              </div>
+
+              <div>
+                <MediaPicker
+                  label="Gallery Images"
+                  multiple
+                  value={data.gallery_images}
+                  onChange={(val) => setData('gallery_images', val)}
+                  placeholder="Select gallery images"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Choose multiple images from the media library; they will be shown in the product gallery.
+                </p>
+              </div>
             </div>
             
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">

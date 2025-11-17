@@ -17,7 +17,7 @@ class CheckPlanAccess
         }
 
         // When superadmin is impersonating a company, skip plan enforcement
-        if (session()->has('impersonated_by')) {
+        if (session()->has('original_user_id')) {
             return $next($request);
         }
 

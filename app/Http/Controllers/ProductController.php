@@ -6,6 +6,7 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Business;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\MediaAsset;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -79,6 +80,8 @@ class ProductController extends Controller
             'is_active' => $validated['is_active'] ?? true,
         ]);
         
+        $this->syncProductMedia($product, $request, $business);
+        
         return redirect()->route('ecommerce.products.index', $business)
             ->with('success', 'Product created successfully!');
     }
@@ -99,6 +102,8 @@ class ProductController extends Controller
             abort(404);
         }
         
+        $product->load(['category', 'media']);
+
         $categories = $business->categories()
             ->active()
             ->ordered()
@@ -143,6 +148,8 @@ class ProductController extends Controller
             'is_featured' => $validated['is_featured'] ?? false,
             'is_active' => $validated['is_active'] ?? true,
         ]);
+        
+        $this->syncProductMedia($product, $request, $business);
         
         return redirect()->route('ecommerce.products.index', $business)
             ->with('success', 'Product updated successfully!');
@@ -189,5 +196,67 @@ class ProductController extends Controller
                 abort(403, 'You do not have permission to access this business.');
             }
         }
+    }
+
+    /**
+     * Sync product media relationships from request URLs.
+     *
+     * @param  \App\Models\Product  $product
+     * @param  \App\Http\Requests\ProductRequest  $request
+     * @param  \App\Models\Business  $business
+     * @return void
+     */
+    private function syncProductMedia(Product $product, ProductRequest $request, Business $business): void
+    {
+        $primaryUrl = trim((string) $request->input('primary_image', ''));
+        $galleryString = (string) $request->input('gallery_images', '');
+
+        $urls = collect();
+
+        if ($primaryUrl !== '') {
+            $urls->push($primaryUrl);
+        }
+
+        if ($galleryString !== '') {
+            $galleryUrls = collect(explode(',', $galleryString))
+                ->map(function ($url) {
+                    return trim((string) $url);
+                })
+                ->filter();
+
+            foreach ($galleryUrls as $url) {
+                if ($url !== '' && ! $urls->contains($url)) {
+                    $urls->push($url);
+                }
+            }
+        }
+
+        if ($urls->isEmpty()) {
+            $product->media()->sync([]);
+            return;
+        }
+
+        $syncData = [];
+
+        foreach ($urls as $index => $url) {
+            $media = MediaAsset::firstOrCreate(
+                [
+                    'business_id' => $business->id,
+                    'url' => $url,
+                ],
+                [
+                    'owner_type' => Product::class,
+                    'owner_id' => $product->id,
+                    'kind' => 'product_image',
+                ]
+            );
+
+            $syncData[$media->id] = [
+                'order_index' => $index,
+                'caption' => null,
+            ];
+        }
+
+        $product->media()->sync($syncData);
     }
 }

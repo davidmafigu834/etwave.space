@@ -3,6 +3,7 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/components/page-template';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/custom-toast';
 import { cn } from '@/lib/utils';
+import MediaPicker from '@/components/MediaPicker';
 import {
   Building2,
   Compass,
@@ -20,6 +22,7 @@ import {
   Rocket,
   Sparkles,
   Trash2,
+  Video as VideoIcon,
 } from 'lucide-react';
 
 interface ProjectResource {
@@ -35,6 +38,8 @@ interface ProjectResource {
   is_featured: boolean;
   order_index: number | null;
   meta?: Record<string, any> | null;
+  media_url?: string | null;
+  media_type?: 'image' | 'video' | null;
 }
 
 interface ProjectsManagerProps {
@@ -58,6 +63,8 @@ interface ProjectFormData {
   is_featured: boolean;
   order_index: number | '' | null;
   meta?: Record<string, any> | null;
+  media_url: string;
+  media_type: 'image' | 'video' | null;
 }
 
 const defaultProjectFormData = (orderIndex: number): ProjectFormData => ({
@@ -72,6 +79,8 @@ const defaultProjectFormData = (orderIndex: number): ProjectFormData => ({
   is_featured: true,
   order_index: orderIndex,
   meta: undefined,
+  media_url: '',
+  media_type: null,
 });
 
 const normalizeNumber = (value: string | number | null | undefined): number | null => {
@@ -131,6 +140,8 @@ const ProjectFormCard: React.FC<{
           is_featured: Boolean(project.is_featured),
           order_index: project.order_index ?? '',
           meta: project.meta ?? undefined,
+          media_url: project.media_url ?? '',
+          media_type: project.media_type ?? '',
         }
       : defaultProjectFormData(defaultOrder)
   );
@@ -244,10 +255,54 @@ const ProjectFormCard: React.FC<{
             <Textarea
               id={`description-${project?.id ?? 'new'}`}
               placeholder={t('Detailed project description, challenges, and outcomes.')}
-              minRows={4}
+              rows={4}
               value={form.data.description}
               onChange={(event) => form.setData('description', event.target.value)}
             />
+          </div>
+
+          <div className="space-y-4">
+            <Label>{t('Project media')}</Label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor={`media_type-${project?.id ?? 'new'}`}>{t('Media type')}</Label>
+                <Select
+                  value={form.data.media_type || 'none'}
+                  onValueChange={(value) => form.setData('media_type', value === 'none' ? null : value as 'image' | 'video')}
+                >
+                  <SelectTrigger id={`media_type-${project?.id ?? 'new'}`}>
+                    <SelectValue placeholder={t('Select media type')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t('No media')}</SelectItem>
+                    <SelectItem value="image">{t('Image')}</SelectItem>
+                    <SelectItem value="video">{t('Video')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {form.data.media_type && (
+              <div className="space-y-2">
+                <Label>
+                  {form.data.media_type === 'image' ? t('Project image') : t('Project video URL')}
+                </Label>
+                {form.data.media_type === 'image' ? (
+                  <MediaPicker
+                    value={form.data.media_url}
+                    onChange={(value) => form.setData('media_url', value)}
+                    placeholder={t('Select or upload an image for this project')}
+                  />
+                ) : (
+                  <Input
+                    value={form.data.media_url}
+                    onChange={(event) => form.setData('media_url', event.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    type="url"
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -362,6 +417,31 @@ const ProjectListItem: React.FC<{
             <p className="text-sm leading-relaxed text-slate-600 whitespace-pre-line">
               {project.description}
             </p>
+          )}
+
+          {project.media_url && (
+            <div className="mt-3">
+              {project.media_type === 'image' ? (
+                <img
+                  src={project.media_url}
+                  alt={project.title}
+                  className="w-full max-w-sm h-32 object-cover rounded-lg border"
+                />
+              ) : project.media_type === 'video' ? (
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border">
+                  <VideoIcon className="h-5 w-5 text-slate-500" />
+                  <span className="text-sm text-slate-600">{t('Video attached')}</span>
+                  <a
+                    href={project.media_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sky-600 hover:underline text-sm"
+                  >
+                    {t('View video')}
+                  </a>
+                </div>
+              ) : null}
+            </div>
           )}
         </div>
 
@@ -565,7 +645,11 @@ const ProjectsManagerPage: React.FC<ProjectsManagerProps> = ({ business, project
                 <p className="text-sm text-sky-50">
                   {t('Add images to make your projects more engaging.')}
                 </p>
-                <Button variant="secondary" className="w-full bg-white text-sky-600 hover:bg-slate-100">
+                <Button
+                  variant="secondary"
+                  className="w-full bg-white text-sky-600 hover:bg-slate-100"
+                  onClick={() => router.visit(route('media-library'))}
+                >
                   {t('Open media library')}
                 </Button>
               </CardContent>

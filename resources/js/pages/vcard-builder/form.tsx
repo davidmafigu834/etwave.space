@@ -1340,15 +1340,16 @@ export default function VCardBuilderForm({ business, userPlan, planFeatures, use
   }, [business?.business_type, initialBusinessType]);
 
   const allowedBusinessTypes = React.useMemo<TemplateOption[]>(() => {
-    // In edit mode, always allow all templates and honor the saved business_type.
-    // This prevents the onboarding profile category from forcing a different template
-    // (e.g. solar-installation) when editing an existing ecommerce business.
-    if (isEdit) {
+    if (isSuperAdmin) {
       return businessTypeOptions;
     }
 
-    if (isSuperAdmin) {
-      return businessTypeOptions;
+    const persistedNormalizedType = persistedBusinessType ? normalizeBusinessType(persistedBusinessType) : null;
+
+    // When editing an ecommerce business, lock the template selection to ecommerce only
+    if (isEdit && persistedNormalizedType === 'ecommerce') {
+      const ecommerceOption = businessTypeOptions.find((option) => option.value === 'ecommerce');
+      return ecommerceOption ? [ecommerceOption] : businessTypeOptions.filter((option) => option.value === 'ecommerce');
     }
 
     const normalizedFromProfile = typeof onboardingProfile?.business_category === 'string'
@@ -2291,6 +2292,8 @@ export default function VCardBuilderForm({ business, userPlan, planFeatures, use
               onClick={() => {
                 // Store the filtered form data in localStorage for the preview page to use
                 localStorage.setItem('vcard_preview_data', JSON.stringify({
+                  // Use the persisted business id when editing so CRM products can be fetched
+                  id: business?.id || data.id || null,
                   business_type: businessType,
                   name: data.name,
                   slug: data.slug || 'preview',
@@ -2692,21 +2695,23 @@ export default function VCardBuilderForm({ business, userPlan, planFeatures, use
                   }}
                 >
                   <div className="vcard-preview-inner">
-                    <VCardPreview
-                      businessType={resolvedBusinessType}
-                      data={{ 
-                        ...data, 
+                    {(() => {
+                      const previewData = {
+                        ...data,
+                        // Ensure EcommerceTemplate receives a real business id for CRM fetches
+                        id: data.id || business?.id,
                         config_sections: previewConfigSections,
                         catalog_sections: catalogSections,
-                        template_config: { 
-                          ...(data.template_config || {}),
-                          sections: previewConfigSections, 
-                          sectionSettings: data.template_config?.sectionSettings || {},
-                          allowedSections: isSuperAdmin ? undefined : (resolvedAllowedSections || undefined)
-                        } 
-                      }}
-                      template={filteredTemplate || template}
-                    />
+                        template_config: data.template_config || template?.defaultData?.template_config || {}
+                      };
+                      return (
+                        <VCardPreview
+                          businessType={resolvedBusinessType}
+                          data={previewData}
+                          template={filteredTemplate || template}
+                        />
+                      );
+                    })()}
                   </div>
                 </ErrorBoundary>
               </div>

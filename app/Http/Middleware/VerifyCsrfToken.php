@@ -22,6 +22,7 @@ class VerifyCsrfToken extends Middleware
         'payments/easebuzz/callback',
         'payments/paytabs/callback',
         'payments/paynow/callback',
-        'api/paynow/*'
+        'api/paynow/*',
+        'api/paynow/create-payment'
     ];
 }

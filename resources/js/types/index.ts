@@ -63,6 +63,7 @@ export interface ProductCategory {
     parent?: ProductCategory;
     children?: ProductCategory[];
     products_count?: number;
+    media?: MediaAsset[];
 }
 
 export interface MediaAsset {

@@ -61,7 +61,21 @@ export default function MediaPicker({
     return `${base}/${url}`;
   };
   
-  const imageUrls = safeValue ? [getDisplayUrl(safeValue)] : [];
+  const valueList: string[] = multiple
+    ? safeValue.split(',').map((v) => v.trim()).filter(Boolean)
+    : safeValue
+      ? [safeValue]
+      : [];
+
+  const handleMultipleSelect = (selectedUrls: string) => {
+    const incoming = selectedUrls
+      .split(',')
+      .map((url) => url.trim())
+      .filter(Boolean);
+
+    const merged = Array.from(new Set([...valueList, ...incoming]));
+    onChange(merged.join(','));
+  };
 
   return (
     <div className="space-y-2">
@@ -95,12 +109,12 @@ export default function MediaPicker({
       </div>
 
       {/* Preview */}
-      {showPreview && imageUrls.length > 0 && (
+      {showPreview && valueList.length > 0 && (
         <div className="grid grid-cols-4 gap-2 mt-2">
-          {imageUrls.map((url, index) => (
-            <div key={index} className="relative">
+          {valueList.map((url: string, index: number) => (
+            <div key={`${url}-${index}`} className="relative">
               <img
-                src={url}
+                src={getDisplayUrl(url)}
                 alt={`Preview ${index + 1}`}
                 className="w-full h-20 object-cover rounded border"
               />
@@ -112,7 +126,13 @@ export default function MediaPicker({
       <MediaLibraryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSelect={handleSelect}
+        onSelect={(selected) => {
+          if (multiple) {
+            handleMultipleSelect(selected);
+          } else {
+            handleSelect(selected);
+          }
+        }}
         multiple={multiple}
       />
     </div>

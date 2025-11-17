@@ -242,7 +242,11 @@ export default function VCardBuilder({
           </h2>
           <VCardPreview
             businessType={businessType}
-            data={{ ...data, template_config: { sections: data.config_sections, sectionSettings: data.config_sections } }}
+            data={{
+              ...data,
+              id: data.id || business?.id,
+              template_config: data.template_config || template?.defaultData?.template_config || {}
+            }}
             template={template}
           />
         </div>

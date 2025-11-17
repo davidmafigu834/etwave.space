@@ -243,9 +243,11 @@ export default function VCardView({ business, pwa_enabled }: Props) {
   };
 
   const data = {
+    id: business.id,
     name: business.name,
     business_type: business.business_type,
     config_sections: buildConfigSections(business),
+    template_config: business.template_config || {},
   };
 
   const colors = { primary: '#3B82F6', secondary: '#1E40AF', accent: '#F59E0B', text: '#E2E8F0', ...(template?.defaultColors ?? {}), ...(business?.config_sections?.colors ?? {}) };

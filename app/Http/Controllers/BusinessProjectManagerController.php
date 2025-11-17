@@ -40,6 +40,8 @@ class BusinessProjectManagerController extends Controller
                     'is_featured' => $project->is_featured,
                     'order_index' => $project->order_index,
                     'meta' => $project->meta,
+                    'media_url' => $project->media_url,
+                    'media_type' => $project->media_type,
                 ];
             })->values(),
         ]);
@@ -72,6 +74,8 @@ class BusinessProjectManagerController extends Controller
             'is_featured' => (bool) ($data['is_featured'] ?? false),
             'order_index' => $nextOrder,
             'meta' => $data['meta'] ?? null,
+            'media_url' => $data['media_url'] ?? null,
+            'media_type' => $data['media_type'] ?? null,
         ]);
 
         return back()->with('success', __('Project saved successfully.'));
@@ -99,6 +103,8 @@ class BusinessProjectManagerController extends Controller
             'is_featured' => (bool) ($data['is_featured'] ?? false),
             'order_index' => $data['order_index'],
             'meta' => $data['meta'] ?? null,
+            'media_url' => $data['media_url'] ?? null,
+            'media_type' => $data['media_type'] ?? null,
         ]);
 
         return back()->with('success', __('Project updated successfully.'));
@@ -128,6 +134,8 @@ class BusinessProjectManagerController extends Controller
             'is_featured' => 'sometimes|boolean',
             'order_index' => 'nullable|integer',
             'meta' => 'nullable|array',
+            'media_url' => 'nullable|string|max:1000',
+            'media_type' => 'nullable|in:image,video',
         ]);
     }
 

@@ -22,11 +22,14 @@ class BusinessProject extends Model
         'is_featured',
         'order_index',
         'meta',
+        'media_url',
+        'media_type',
     ];
 
     protected $casts = [
         'is_featured' => 'boolean',
         'meta' => 'array',
+        'media_type' => 'string',
     ];
 
     public function business()

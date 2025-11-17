@@ -83,8 +83,8 @@ Route::get('/', [LandingPageController::class, 'show'])->name('home');
 // Paynow Payment Demo Route
 Route::get('/paynow-demo', [SimplePaynowController::class, 'showPaymentDemo']);
 
-// Simple Paynow Payment Routes (web middleware)
-Route::middleware('web')->group(function () {
+// Simple Paynow Payment Routes (no middleware group, only auth)
+Route::middleware([])->group(function () {
     Route::post('/api/paynow/create-payment', [SimplePaynowController::class, 'createPayment'])->middleware(['auth']);
     Route::get('/api/paynow/callback', [SimplePaynowController::class, 'handleCallback']);
     Route::get('/api/paynow/verify-payment', [SimplePaynowController::class, 'verifyPayment']);

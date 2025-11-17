@@ -5,9 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BusinessController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\EcommerceTemplateController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
-use App\Http\Controllers\SimplePaynowController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -28,6 +28,14 @@ Route::middleware('api')->prefix('v1')->group(function () {
     Route::get('/appointments', [AppointmentController::class, 'index'])->middleware('auth:sanctum');
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->middleware('auth:sanctum');
     Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus'])->middleware('auth:sanctum');
+    
+    // Ecommerce Template API routes
+    Route::prefix('ecommerce-template')->group(function () {
+        Route::get('/business/{business}/products', [EcommerceTemplateController::class, 'getProducts']);
+        Route::get('/business/{business}/categories', [EcommerceTemplateController::class, 'getCategories']);
+        Route::get('/business/{business}/testimonials', [EcommerceTemplateController::class, 'getTestimonials']);
+        Route::get('/business/{business}/stats', [EcommerceTemplateController::class, 'getStats']);
+    });
     
     // Announcement routes (used by web dashboard, no Sanctum token required)
     Route::prefix('announcements')->group(function () {

@@ -80,6 +80,8 @@ export default function VCardPreviewPage() {
             <VCardPreview
               businessType={previewData.business_type}
               data={{ 
+                // Ensure templates like Ecommerce can fetch CRM data using the real business id when available
+                id: previewData.id || null,
                 name: previewData.name,
                 slug: 'preview',
                 business_type: previewData.business_type,

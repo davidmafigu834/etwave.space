@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Business, ProductCategory } from '@/types';
+import MediaPicker from '@/components/MediaPicker';
 
 interface CategoriesCreateProps {
   business: Business;
@@ -14,6 +15,7 @@ const CategoriesCreate: React.FC<CategoriesCreateProps> = ({ business, parentCat
     description: '',
     parent_id: '',
     is_active: true as boolean,
+    image: '',
   });
   
   const submit = (e: React.FormEvent) => {
@@ -50,6 +52,18 @@ const CategoriesCreate: React.FC<CategoriesCreateProps> = ({ business, parentCat
                 onChange={(e) => setData('name', e.target.value)}
               />
               {errors.name && <div className="text-red-500 text-sm mt-1">{errors.name}</div>}
+            </div>
+
+            <div className="mb-6">
+              <MediaPicker
+                label="Category Image"
+                value={data.image}
+                onChange={(val) => setData('image', val)}
+                placeholder="Select an image for this category"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This image is shown in the Shop by Category section.
+              </p>
             </div>
             
             <div className="mb-6">

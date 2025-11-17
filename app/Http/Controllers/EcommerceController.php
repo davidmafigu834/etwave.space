@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Order;
+use App\Models\MediaAsset;
 use App\Services\EcommerceService;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -104,6 +105,8 @@ class EcommerceController extends Controller
             'is_active' => $validated['is_active'] ?? true,
         ]);
         
+        $this->syncCategoryMedia($category, $request, $business);
+        
         return redirect()->route('ecommerce.categories.index', $business)
             ->with('success', 'Category created successfully!');
     }
@@ -124,6 +127,8 @@ class EcommerceController extends Controller
             abort(404);
         }
         
+        $category->load('media');
+
         $parentCategories = $business->categories()
             ->where('id', '!=', $category->id)
             ->root()
@@ -163,6 +168,8 @@ class EcommerceController extends Controller
             'parent_id' => $validated['parent_id'] ?? null,
             'is_active' => $validated['is_active'] ?? true,
         ]);
+        
+        $this->syncCategoryMedia($category, $request, $business);
         
         return redirect()->route('ecommerce.categories.index', $business)
             ->with('success', 'Category updated successfully!');
@@ -215,5 +222,42 @@ class EcommerceController extends Controller
                 abort(403, 'You do not have permission to access this business.');
             }
         }
+    }
+
+    /**
+     * Sync category media relationships from request URLs.
+     *
+     * @param  \App\Models\ProductCategory  $category
+     * @param  \App\Http\Requests\ProductCategoryRequest  $request
+     * @param  \App\Models\Business  $business
+     * @return void
+     */
+    private function syncCategoryMedia(ProductCategory $category, ProductCategoryRequest $request, Business $business): void
+    {
+        $imageUrl = trim((string) $request->input('image', ''));
+
+        if ($imageUrl === '') {
+            $category->media()->sync([]);
+            return;
+        }
+
+        $media = MediaAsset::firstOrCreate(
+            [
+                'business_id' => $business->id,
+                'url' => $imageUrl,
+            ],
+            [
+                'owner_type' => ProductCategory::class,
+                'owner_id' => $category->id,
+                'kind' => 'category_image',
+            ]
+        );
+
+        $category->media()->sync([
+            $media->id => [
+                'order_index' => 0,
+                'caption' => null,
+            ],
+        ]);
     }
 }

@@ -23,19 +23,25 @@ class ProductRequest extends FormRequest
      */
     public function rules()
     {
-        $productId = $this->route('product');
+        $product = $this->route('product');
+        $productId = is_object($product) ? $product->getKey() : $product;
+
+        $business = $this->route('business');
+        $businessId = is_object($business) ? $business->getKey() : $business;
         
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string|max:500',
-            'category_id' => 'nullable|exists:product_categories,id,business_id,'.$this->route('business')->id,
+            'category_id' => 'nullable|exists:product_categories,id,business_id,'.$businessId,
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
-            'sku' => 'required|string|unique:products,sku,'.$productId.',id,business_id,'.$this->route('business')->id,
+            'sku' => 'required|string|unique:products,sku,'.$productId.',id,business_id,'.$businessId,
             'stock_quantity' => 'required|integer|min:0',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
+            'primary_image' => 'nullable|string',
+            'gallery_images' => 'nullable|string',
         ];
     }
 

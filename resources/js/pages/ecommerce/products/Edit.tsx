@@ -2,12 +2,26 @@ import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Business, Product, ProductCategory } from '@/types';
+import MediaPicker from '@/components/MediaPicker';
 
 interface ProductsEditProps {
   business: Business;
   product: Product;
   categories: ProductCategory[];
 }
+
+const formatCurrencyValue = (value?: number | string | null) => {
+  if (value === null || value === undefined || value === '') {
+    return '0.00';
+  }
+
+  const numericValue = typeof value === 'number' ? value : parseFloat(value);
+  if (Number.isNaN(numericValue)) {
+    return typeof value === 'string' ? value : '0.00';
+  }
+
+  return numericValue.toFixed(2);
+};
 
 const ProductsEdit: React.FC<ProductsEditProps> = ({ business, product, categories }) => {
   const { data, setData, put, processing, errors } = useForm({
@@ -21,6 +35,8 @@ const ProductsEdit: React.FC<ProductsEditProps> = ({ business, product, categori
     stock_quantity: product.stock_quantity?.toString() || '',
     is_featured: (product.is_featured ?? false) as boolean,
     is_active: (product.is_active ?? true) as boolean,
+    primary_image: product?.media?.[0]?.url || '',
+    gallery_images: product?.media?.map((m) => m.url).join(',') || '',
   });
   
   const submit = (e: React.FormEvent) => {
@@ -59,6 +75,33 @@ const ProductsEdit: React.FC<ProductsEditProps> = ({ business, product, categori
                 />
                 {errors.name && <div className="text-red-500 text-sm mt-1">{errors.name}</div>}
               </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <MediaPicker
+                  label="Product Image"
+                  value={data.primary_image}
+                  onChange={(val) => setData('primary_image', val)}
+                  placeholder="Select a primary product image"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This image appears first in the storefront and preview cards.
+                </p>
+              </div>
+
+              <div>
+                <MediaPicker
+                  label="Gallery Images"
+                  multiple
+                  value={data.gallery_images}
+                  onChange={(val) => setData('gallery_images', val)}
+                  placeholder="Select gallery images"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Choose multiple images from the media library; they will be shown in the product gallery.
+                </p>
+              </div>
+            </div>
               
               <div>
                 <label htmlFor="sku" className="block text-sm font-medium text-gray-700 mb-1">
@@ -141,7 +184,7 @@ const ProductsEdit: React.FC<ProductsEditProps> = ({ business, product, categori
                 {errors.price && <div className="text-red-500 text-sm mt-1">{errors.price}</div>}
                 
                 <div className="mt-1 text-sm text-gray-500">
-                  Current price: ${product.price?.toFixed(2)}
+                  Current price: ${formatCurrencyValue(product.price)}
                 </div>
               </div>
               
@@ -167,7 +210,7 @@ const ProductsEdit: React.FC<ProductsEditProps> = ({ business, product, categori
                 
                 {product.sale_price && (
                   <div className="mt-1 text-sm text-gray-500">
-                    Current sale price: ${product.sale_price?.toFixed(2)}
+                    Current sale price: ${formatCurrencyValue(product.sale_price)}
                   </div>
                 )}
                 <div className="text-xs text-gray-500 mt-1">Leave blank if not on sale</div>

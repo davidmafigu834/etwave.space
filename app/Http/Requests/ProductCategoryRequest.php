@@ -30,6 +30,7 @@ class ProductCategoryRequest extends FormRequest
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:product_categories,id,business_id,'.$this->route('business')->id,
             'is_active' => 'boolean',
+            'image' => 'nullable|string',
         ];
     }
 }

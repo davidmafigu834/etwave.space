@@ -161,7 +161,14 @@ class PublicVCardController extends Controller
         
         // Load catalog data (services and packages)
         $catalogData = [];
-        $businessModel = \App\Models\Business::find($businessId);
+        $businessModel = \App\Models\Business::with([
+            'services.media',
+            'packages.features',
+            'projects.media',
+            'categories.media',
+            'products.media',
+            'products.category',
+        ])->find($businessId);
         if ($businessModel) {
             $catalogData['service_highlights'] = [
                 'services' => $businessModel->services()->orderBy('order_index')->get()->map(function ($service) {
@@ -218,6 +225,80 @@ class PublicVCardController extends Controller
                     ];
                 })->values()
             ];
+
+            if (($business['business_type'] ?? null) === 'ecommerce') {
+                $crmProducts = $businessModel->products()
+                    ->active()
+                    ->with(['category', 'media'])
+                    ->orderBy('order_index')
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'slug' => $product->slug,
+                            'price' => $product->price,
+                            'sale_price' => $product->sale_price,
+                            'has_discount' => $product->has_discount,
+                            'display_price' => $product->display_price,
+                            'sku' => $product->sku,
+                            'stock_quantity' => $product->stock_quantity,
+                            'is_featured' => $product->is_featured,
+                            'short_description' => $product->short_description,
+                            'description' => $product->description,
+                            'category' => $product->category ? [
+                                'id' => $product->category->id,
+                                'name' => $product->category->name,
+                                'slug' => $product->category->slug,
+                            ] : null,
+                            'images' => $product->media->map(function ($media) {
+                                return [
+                                    'id' => $media->id,
+                                    'url' => $media->getFullUrl(),
+                                    'alt_text' => $media->alt_text,
+                                    'is_primary' => $media->pivot->order_index === 0,
+                                ];
+                            })->values(),
+                        ];
+                    })->values()->toArray();
+
+                $crmCategories = $businessModel->categories()
+                    ->active()
+                    ->with(['media', 'products' => function ($query) {
+                        $query->active();
+                    }])
+                    ->orderBy('order_index')
+                    ->get()
+                    ->map(function ($category) {
+                        $firstMedia = $category->media->first();
+
+                        return [
+                            'id' => $category->id,
+                            'name' => $category->name,
+                            'slug' => $category->slug,
+                            'description' => $category->description,
+                            'product_count' => $category->products->count(),
+                            'image' => $firstMedia ? [
+                                'id' => $firstMedia->id,
+                                'url' => $firstMedia->getFullUrl(),
+                                'alt_text' => $firstMedia->alt_text,
+                            ] : null,
+                        ];
+                    })->values()->toArray();
+
+                $business['products'] = $crmProducts;
+                $business['categories'] = $crmCategories;
+
+                $business['config_sections']['products'] = array_merge(
+                    $business['config_sections']['products'] ?? [],
+                    ['items' => $crmProducts]
+                );
+
+                $business['config_sections']['categories'] = array_merge(
+                    $business['config_sections']['categories'] ?? [],
+                    ['items' => $crmCategories]
+                );
+            }
         }
         
         // Merge catalog data with business data

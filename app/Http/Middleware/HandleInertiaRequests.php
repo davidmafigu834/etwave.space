@@ -168,7 +168,7 @@ class HandleInertiaRequests extends Middleware
                 $user = $request->user();
                 return optional($user)->lang ?? $this->getSuperAdminLang();
             },
-            'isImpersonating' => session('impersonated_by') ? true : false,
+            'isImpersonating' => session('original_user_id') ? true : false,
             'is_demo' => env('IS_DEMO', false),
         ]);
     }

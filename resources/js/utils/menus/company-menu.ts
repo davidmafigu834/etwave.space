@@ -317,7 +317,7 @@ export const getCompanyMenuItems = (t: any, permissions: any[], auth: any,referr
                     icon: ShoppingBag,
                     children: ecommerceChildren,
                     defaultOpen: true,
-                    order: 150,
+                    order: 15,
                 });
             }
         }

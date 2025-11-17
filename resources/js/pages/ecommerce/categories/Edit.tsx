@@ -2,6 +2,7 @@ import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Business, ProductCategory } from '@/types';
+import MediaPicker from '@/components/MediaPicker';
 
 interface CategoriesEditProps {
   business: Business;
@@ -15,6 +16,7 @@ const CategoriesEdit: React.FC<CategoriesEditProps> = ({ business, category, par
     description: category.description || '',
     parent_id: category.parent_id ? category.parent_id.toString() : '',
     is_active: category.is_active ?? true,
+    image: category?.media?.[0]?.url || '',
   });
   
   const submit = (e: React.FormEvent) => {
@@ -51,6 +53,18 @@ const CategoriesEdit: React.FC<CategoriesEditProps> = ({ business, category, par
                 onChange={(e) => setData('name', e.target.value)}
               />
               {errors.name && <div className="text-red-500 text-sm mt-1">{errors.name}</div>}
+            </div>
+
+            <div className="mb-6">
+              <MediaPicker
+                label="Category Image"
+                value={data.image}
+                onChange={(val) => setData('image', val)}
+                placeholder="Select an image for this category"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This image is shown in the Shop by Category section.
+              </p>
             </div>
             
             <div className="mb-6">
