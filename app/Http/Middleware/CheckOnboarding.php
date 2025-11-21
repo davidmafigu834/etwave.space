@@ -26,6 +26,11 @@ class CheckOnboarding
             return $next($request);
         }
 
+        // Skip if user is being impersonated
+        if ($user->isImpersonated()) {
+            return $next($request);
+        }
+
         // Skip if user is not a company (e.g. if you have other user types that don't need onboarding)
         if ($user->type !== 'company') {
             return $next($request);

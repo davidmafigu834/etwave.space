@@ -14,10 +14,10 @@ interface MediaPickerProps {
   showPreview?: boolean;
 }
 
-export default function MediaPicker({ 
-  label, 
-  value = '', 
-  onChange, 
+export default function MediaPicker({
+  label,
+  value = '',
+  onChange,
   multiple = false,
   placeholder = 'Select image...',
   showPreview = true
@@ -25,6 +25,7 @@ export default function MediaPicker({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getBaseUrl = () => {
+    if ((window as any).baseUrl) return (window as any).baseUrl;
     if (window.appSettings?.imageUrl) return window.appSettings.imageUrl;
     const origin = window.location.origin;
     const parts = window.location.pathname.split('/').filter(Boolean);
@@ -47,20 +48,20 @@ export default function MediaPicker({
   const handleClear = () => {
     onChange('');
   };
-  
+
   // Ensure value is always a string, never null
   const safeValue = value || '';
-  
+
   // Base for preview and paths
   const base = getBaseUrl();
   // Process the image URL for preview
-    const getDisplayUrl = (url: string) => {
+  const getDisplayUrl = (url: string) => {
     if (!url) return '';
     if (url.startsWith('http')) return url;
     if (url.startsWith('/')) return `${base}${url}`;
     return `${base}/${url}`;
   };
-  
+
   const valueList: string[] = multiple
     ? safeValue.split(',').map((v) => v.trim()).filter(Boolean)
     : safeValue
@@ -80,7 +81,7 @@ export default function MediaPicker({
   return (
     <div className="space-y-2">
       {label && <Label>{label}</Label>}
-      
+
       <div className="flex gap-2">
         <Input
           value={safeValue}

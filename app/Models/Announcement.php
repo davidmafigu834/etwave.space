@@ -70,7 +70,10 @@ class Announcement extends Model
             return $query->whereNull('target_roles')->orWhereJsonLength('target_roles', 0);
         }
 
-        $roleNames = collect($user->roles ?? [])->pluck('name')->filter()->values();
+        // Use getRoleNames() method from Spatie's HasRoles trait
+        $roleNames = method_exists($user, 'getRoleNames') 
+            ? $user->getRoleNames() 
+            : collect([]);
         $type = $user->type ?? null;
 
         return $query->where(function ($q) use ($roleNames, $type) {

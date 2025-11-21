@@ -92,7 +92,17 @@ const formatPrice = (value: number | string | undefined | null, fallback = '0.00
 const resolveUrl = (url: string) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  // If we have a base URL in app settings, use it
+
+  // Use window.baseUrl which is defined in app.blade.php
+  if ((window as any).baseUrl) {
+    const baseUrl = (window as any).baseUrl;
+    // Ensure we don't have double slashes if baseUrl ends with / and url starts with /
+    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+    return `${cleanBase}${cleanUrl}`;
+  }
+
+  // Fallback to appSettings if baseUrl is missing
   if ((window as any).appSettings?.baseUrl) {
     const baseUrl = (window as any).appSettings.baseUrl;
     return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
@@ -299,7 +309,7 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
               alt="Hero background"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-50"></div>
           </div>
         )}
 
@@ -405,9 +415,8 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
               {productsData.show_filters && categories.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-2">
                   <button
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedCategory === null ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === null ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                     style={{
                       backgroundColor: selectedCategory === null ? colors.primary : undefined,
                       color: selectedCategory === null ? colors.buttonText : undefined,
@@ -420,9 +429,8 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
                   {categories.slice(0, 5).map((category) => (
                     <button
                       key={category.id}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        selectedCategory === category.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === category.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
                       style={{
                         backgroundColor: selectedCategory === category.id ? colors.primary : undefined,
                         color: selectedCategory === category.id ? colors.buttonText : undefined,
@@ -468,7 +476,7 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
                     onClick={() => openProductModal(product)}
                   >
                     <div className="relative overflow-hidden rounded-2xl rounded-b-none aspect-[4/3]"
-                         style={{ backgroundColor: colors.cardBg || '#f3f4f6' }}>
+                      style={{ backgroundColor: colors.cardBg || '#f3f4f6' }}>
                       {productImage ? (
                         <img
                           src={productImage.url}
@@ -751,7 +759,7 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
               </div>
             );
           })()}
-          
+
         </div>
       </section>
     );
@@ -950,7 +958,7 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
 
           {/* Bottom */}
           <div className="border-t pt-8 flex flex-col md:flex-row justify-between items-center"
-               style={{ borderColor: colors.borderColor }}>
+            style={{ borderColor: colors.borderColor }}>
             <p className="text-gray-600 text-sm">
               {footerData.copyright_text}
             </p>
@@ -1017,148 +1025,149 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
         }
       }}
     >
-      <DialogContent className="max-w-2xl w-full md:max-w-3xl p-0 overflow-hidden">
-        {selectedProduct ? (
-          <div style={{ fontFamily: font }}>
-            <div className="relative bg-gray-100" style={{ backgroundColor: colors.cardBg }}>
-              {(() => {
-                const images = selectedProduct.images || [];
-                const hasImages = images.length > 0;
-                const safeIndex = hasImages
-                  ? Math.min(selectedImageIndex, images.length - 1)
-                  : 0;
-                const currentImage = hasImages ? images[safeIndex] : null;
+      <DialogContent className="max-w-2xl w-full md:max-w-3xl p-0 overflow-hidden max-h-[90vh]">
+        <div className="overflow-y-auto max-h-[90vh]">
+          {selectedProduct ? (
+            <div style={{ fontFamily: font }}>
+              <div className="relative bg-gray-100" style={{ backgroundColor: colors.cardBg }}>
+                {(() => {
+                  const images = selectedProduct.images || [];
+                  const hasImages = images.length > 0;
+                  const safeIndex = hasImages
+                    ? Math.min(selectedImageIndex, images.length - 1)
+                    : 0;
+                  const currentImage = hasImages ? images[safeIndex] : null;
 
-                if (currentImage) {
+                  if (currentImage) {
+                    return (
+                      <img
+                        src={currentImage.url}
+                        alt={currentImage.alt_text || selectedProduct.name}
+                        className="w-full h-72 object-cover"
+                      />
+                    );
+                  }
+
                   return (
-                    <img
-                      src={currentImage.url}
-                      alt={currentImage.alt_text || selectedProduct.name}
-                      className="w-full h-72 object-cover"
-                    />
+                    <div className="w-full h-72 flex items-center justify-center">
+                      <ShoppingBag size={48} className="text-gray-400" />
+                    </div>
                   );
-                }
+                })()}
 
-                return (
-                  <div className="w-full h-72 flex items-center justify-center">
-                    <ShoppingBag size={48} className="text-gray-400" />
+                {selectedProduct.images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-white/70 backdrop-blur rounded-full px-3 py-1">
+                    {selectedProduct.images.slice(0, 4).map((image, index) => (
+                      <span
+                        key={image.id}
+                        className={`w-2 h-2 rounded-full ${index === selectedImageIndex ? '' : 'opacity-60'}`}
+                        style={{ backgroundColor: colors.primary }}
+                      />
+                    ))}
                   </div>
-                );
-              })()}
+                )}
+              </div>
 
               {selectedProduct.images.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-white/70 backdrop-blur rounded-full px-3 py-1">
-                  {selectedProduct.images.slice(0, 4).map((image, index) => (
-                    <span
-                      key={image.id}
-                      className={`w-2 h-2 rounded-full ${index === selectedImageIndex ? '' : 'opacity-60'}`}
-                      style={{ backgroundColor: colors.primary }}
-                    />
-                  ))}
+                <div className="px-4 pt-3 pb-4 bg-white border-b border-gray-100">
+                  <div className="flex gap-2 overflow-x-auto">
+                    {selectedProduct.images.map((image, index) => (
+                      <button
+                        key={image.id}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`relative flex-shrink-0 rounded-md overflow-hidden border ${index === selectedImageIndex ? 'ring-2 ring-offset-2 ring-blue-500' : 'border-gray-200'
+                          }`}
+                        style={{ width: 72, height: 72 }}
+                      >
+                        <img
+                          src={image.url}
+                          alt={image.alt_text || selectedProduct.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
 
-            {selectedProduct.images.length > 1 && (
-              <div className="px-4 pt-3 pb-4 bg-white border-b border-gray-100">
-                <div className="flex gap-2 overflow-x-auto">
-                  {selectedProduct.images.map((image, index) => (
-                    <button
-                      key={image.id}
-                      type="button"
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`relative flex-shrink-0 rounded-md overflow-hidden border ${
-                        index === selectedImageIndex ? 'ring-2 ring-offset-2 ring-blue-500' : 'border-gray-200'
-                      }`}
-                      style={{ width: 72, height: 72 }}
-                    >
-                      <img
-                        src={image.url}
-                        alt={image.alt_text || selectedProduct.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+              <div className="p-6 space-y-4">
+                <DialogHeader className="space-y-1">
+                  <DialogTitle className="text-2xl" style={{ color: colors.text }}>
+                    {selectedProduct.name}
+                  </DialogTitle>
+                  {selectedProduct.category?.name && (
+                    <DialogDescription className="text-gray-600">
+                      {selectedProduct.category.name}
+                    </DialogDescription>
+                  )}
+                </DialogHeader>
 
-            <div className="p-6 space-y-4">
-              <DialogHeader className="space-y-1">
-                <DialogTitle className="text-2xl" style={{ color: colors.text }}>
-                  {selectedProduct.name}
-                </DialogTitle>
-                {selectedProduct.category?.name && (
-                  <DialogDescription className="text-gray-600">
-                    {selectedProduct.category.name}
-                  </DialogDescription>
-                )}
-              </DialogHeader>
-
-              <div className="flex flex-wrap items-center gap-3 text-lg font-semibold">
-                {selectedProduct.has_discount ? (
-                  <>
-                    <span style={{ color: colors.saleColor }}>
-                      ${formatPrice(selectedProduct.display_price)}
-                    </span>
-                    <span className="text-base text-gray-400 line-through">
+                <div className="flex flex-wrap items-center gap-3 text-lg font-semibold">
+                  {selectedProduct.has_discount ? (
+                    <>
+                      <span style={{ color: colors.saleColor }}>
+                        ${formatPrice(selectedProduct.display_price)}
+                      </span>
+                      <span className="text-base text-gray-400 line-through">
+                        ${formatPrice(selectedProduct.price)}
+                      </span>
+                    </>
+                  ) : (
+                    <span style={{ color: colors.text }}>
                       ${formatPrice(selectedProduct.price)}
                     </span>
-                  </>
-                ) : (
-                  <span style={{ color: colors.text }}>
-                    ${formatPrice(selectedProduct.price)}
-                  </span>
-                )}
+                  )}
 
-                {selectedProduct.stock_quantity > 0 ? (
-                  <span className="text-sm text-gray-500">
-                    {selectedProduct.stock_quantity} in stock
-                  </span>
-                ) : (
-                  <span className="text-sm text-red-500">Out of stock</span>
-                )}
-              </div>
-
-              <div className="text-sm text-gray-600 space-y-1">
-                {selectedProduct.sku && <p>SKU: {selectedProduct.sku}</p>}
-                {selectedProduct.short_description && (
-                  <p>{selectedProduct.short_description}</p>
-                )}
-              </div>
-
-              {selectedProduct.description && (
-                <div className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
-                  {selectedProduct.description}
+                  {selectedProduct.stock_quantity > 0 ? (
+                    <span className="text-sm text-gray-500">
+                      {selectedProduct.stock_quantity} in stock
+                    </span>
+                  ) : (
+                    <span className="text-sm text-red-500">Out of stock</span>
+                  )}
                 </div>
-              )}
 
-              <DialogFooter className="pt-2">
-                <Button variant="outline" className="w-full sm:w-auto" onClick={closeProductModal}>
-                  Close
-                </Button>
-                <Button
-                  className="w-full sm:w-auto"
-                  style={{
-                    backgroundColor: hasWhatsAppNumber ? colors.primary : '#ccc',
-                    color: colors.buttonText
-                  }}
-                  disabled={!hasWhatsAppNumber}
-                  onClick={() => {
-                    if (!selectedProduct) return;
-                    const link = getWhatsAppLinkForProduct(selectedProduct);
-                    if (!link) return;
-                    window.open(link, '_blank');
-                  }}
-                >
-                  {hasWhatsAppNumber ? 'Chat on WhatsApp' : 'Add WhatsApp Number to Enable'}
-                </Button>
-              </DialogFooter>
+                <div className="text-sm text-gray-600 space-y-1">
+                  {selectedProduct.sku && <p>SKU: {selectedProduct.sku}</p>}
+                  {selectedProduct.short_description && (
+                    <p>{selectedProduct.short_description}</p>
+                  )}
+                </div>
+
+                {selectedProduct.description && (
+                  <div className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
+                    {selectedProduct.description}
+                  </div>
+                )}
+
+                <DialogFooter className="pt-2">
+                  <Button variant="outline" className="w-full sm:w-auto" onClick={closeProductModal}>
+                    Close
+                  </Button>
+                  <Button
+                    className="w-full sm:w-auto"
+                    style={{
+                      backgroundColor: hasWhatsAppNumber ? colors.primary : '#ccc',
+                      color: colors.buttonText
+                    }}
+                    disabled={!hasWhatsAppNumber}
+                    onClick={() => {
+                      if (!selectedProduct) return;
+                      const link = getWhatsAppLinkForProduct(selectedProduct);
+                      if (!link) return;
+                      window.open(link, '_blank');
+                    }}
+                  >
+                    {hasWhatsAppNumber ? 'Chat on WhatsApp' : 'Add WhatsApp Number to Enable'}
+                  </Button>
+                </DialogFooter>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-center text-gray-600 py-6">No product selected.</div>
-        )}
+          ) : (
+            <div className="text-center text-gray-600 py-6">No product selected.</div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
