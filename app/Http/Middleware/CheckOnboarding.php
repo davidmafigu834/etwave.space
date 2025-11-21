@@ -26,8 +26,8 @@ class CheckOnboarding
             return $next($request);
         }
 
-        // Skip if user is being impersonated
-        if ($user->isImpersonated()) {
+        // Skip if user is being impersonated (check session)
+        if (session()->has('impersonate')) {
             return $next($request);
         }
 
@@ -39,11 +39,11 @@ class CheckOnboarding
         // Check if onboarding is completed
         if (!$user->hasCompletedOnboarding()) {
             // Allow access to onboarding routes and logout
-            if ($request->routeIs('onboarding.*') || $request->routeIs('logout') || $request->routeIs('profile.*')) {
+            if ($request->routeIs('dashboard') || $request->routeIs('logout') || $request->routeIs('profile.*')) {
                 return $next($request);
             }
 
-            return redirect()->route('onboarding.profile.show');
+            return redirect()->route('dashboard');
         }
 
         return $next($request);
