@@ -259,6 +259,18 @@ class User extends BaseAuthenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if user has completed onboarding
+     */
+    public function hasCompletedOnboarding(): bool
+    {
+        if ($this->type !== 'company') {
+            return true;
+        }
+
+        return $this->onboardingProfile()->exists() && $this->onboardingProfile->completed_at !== null;
+    }
+    
+    /**
      * Check if user can be impersonated
      */
     public function canBeImpersonated()

@@ -343,7 +343,7 @@ Route::middleware(['auth', 'verified','setting'])->group(function () {
     Route::post('onboarding/profile', [OnboardingProfileController::class, 'store'])->name('onboarding.profile.store');
     Route::put('onboarding/profile', [OnboardingProfileController::class, 'update'])->name('onboarding.profile.update');
 
-    Route::middleware('plan.access')->group(function () {
+    Route::middleware(['onboarding.check', 'plan.access'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
         // Analytics routes

@@ -89,6 +89,17 @@ const formatPrice = (value: number | string | undefined | null, fallback = '0.00
   return numericValue.toFixed(2);
 };
 
+const resolveUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  // If we have a base URL in app settings, use it
+  if ((window as any).appSettings?.baseUrl) {
+    const baseUrl = (window as any).appSettings.baseUrl;
+    return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+  }
+  return url;
+};
+
 function EcommerceTemplate({ data, template }: TemplateProps) {
   const { t } = useTranslation();
 
@@ -284,11 +295,11 @@ function EcommerceTemplate({ data, template }: TemplateProps) {
         {heroData.background_image && (
           <div className="absolute inset-0">
             <img
-              src={heroData.background_image}
+              src={resolveUrl(heroData.background_image)}
               alt="Hero background"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-60"></div>
           </div>
         )}
 

@@ -28,4 +28,13 @@ class MediaAsset extends Model
     {
         return $this->belongsTo(Business::class);
     }
+
+    public function getFullUrl()
+    {
+        if (filter_var($this->url, FILTER_VALIDATE_URL)) {
+            return $this->url;
+        }
+        
+        return url('/storage/' . $this->url);
+    }
 }

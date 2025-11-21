@@ -50,6 +50,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'plan.access' => \App\Http\Middleware\CheckPlanAccess::class,
             'setting' => \App\Http\Middleware\SettingMiddleware::class,
             'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
+            'onboarding.check' => \App\Http\Middleware\CheckOnboarding::class,
         ]);
 
         $middleware->validateCsrfTokens(
